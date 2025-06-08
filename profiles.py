@@ -2,6 +2,7 @@
 Hardcoded compression profiles for testing
 """
 import torch
+from compression import decompose_and_fuse
 
 # Set seed for reproducible random matrices
 torch.manual_seed(42)
@@ -10,24 +11,21 @@ torch.manual_seed(42)
 d_model = 512  # embedding dimension
 d_head = 64    # per-head dimension
 
-# Compression profiles with different ranks
-profiles = {
-    "low": {
-        "A": torch.randn(64, d_head),           # rank 64
-        "W_fused": torch.randn(d_model, 64),   # fused output projection
-        "r": 64
-    },
-    "med": {
-        "A": torch.randn(32, d_head),           # rank 32
-        "W_fused": torch.randn(d_model, 32),   # fused output projection
-        "r": 32
-    },
-    "high": {
-        "A": torch.randn(16, d_head),           # rank 16
-        "W_fused": torch.randn(d_model, 16),   # fused output projection
-        "r": 16
+# Create mock W_v and W_o matrices for SVD decomposition
+W_v = torch.randn(d_model, d_head) * 0.1  # Value projection matrix
+W_o = torch.randn(d_model, d_head) * 0.1  # Output projection matrix
+
+# Compression profiles with different ranks - now using proper SVD decomposition
+profiles = {}
+
+# Generate profiles using actual SVD decomposition and fusion
+for name, rank in [("low", 64), ("med", 32), ("high", 16)]:
+    A, W_fused = decompose_and_fuse(W_v, W_o, rank)
+    profiles[name] = {
+        "A": A,           # Proper compression matrix from SVD
+        "W_fused": W_fused,   # Properly fused output projection W_o @ U
+        "r": rank
     }
-}
 
 # Keep matrices consistent across runs
 for profile in profiles.values():

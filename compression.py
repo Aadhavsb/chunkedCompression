@@ -6,7 +6,7 @@ from typing import Tuple
 
 def decompose_and_fuse(W_v: torch.Tensor, W_o: torch.Tensor, rank: int) -> Tuple[torch.Tensor, torch.Tensor]:
     """
-    Simulate SVD decomposition and fusion of W_v and W_o matrices
+    Perform SVD decomposition of W_v and fuse with W_o
     
     Args:
         W_v: Value projection matrix [d_model, d_head]
@@ -14,20 +14,24 @@ def decompose_and_fuse(W_v: torch.Tensor, W_o: torch.Tensor, rank: int) -> Tuple
         rank: Target compression rank
         
     Returns:
-        A: Compression matrix [rank, d_head]
-        W_fused: Fused output projection [d_model, rank]
+        A: Compression matrix [rank, d_head] = S_truncated @ V_truncated^T
+        W_fused: Fused output projection [d_model, rank] = W_o @ U_truncated
     """
-    # For barebones testing, we'll simulate the decomposition with random matrices
-    # In a real implementation, this would involve SVD of W_v and fusion with W_o
-    
     d_model, d_head = W_v.shape
     
-    # Simulate compression matrix A (maps from d_head to rank)
-    torch.manual_seed(42)  # For reproducible results
-    A = torch.randn(rank, d_head) * 0.1
+    # Perform SVD: W_v = U @ S @ V^T
+    U, S, V = torch.svd(W_v)
     
-    # Simulate fused output projection W_fused (maps from rank to d_model)
-    W_fused = torch.randn(d_model, rank) * 0.1
+    # Truncate to desired rank
+    U_truncated = U[:, :rank]          # [d_model, rank]
+    S_truncated = S[:rank]             # [rank]
+    V_truncated = V[:, :rank]          # [d_head, rank]
+    
+    # Create compression matrix: A = S @ V^T (maps from d_head to rank)
+    A = torch.diag(S_truncated) @ V_truncated.T  # [rank, d_head]
+    
+    # Create fused output projection: W_fused = W_o @ U (maps from rank to d_model)
+    W_fused = W_o @ U_truncated  # [d_model, rank]
     
     return A, W_fused
 
