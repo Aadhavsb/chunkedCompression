@@ -53,11 +53,19 @@ class ChunkedCompressionTester:
             # Get SVD-based compression matrices
             A, W_fused_attn = decompose_and_fuse(W_v, W_o, rank)
             
-            # Create fused output projection: W0 @ B.T where B comes from SVD
-            # Here B is essentially the U matrix from SVD, so W_fused_final = W0 @ U[:, :rank]
+            # Create proper fused output projection for language modeling
+            # We want: compressed_latents @ W_fused.T -> logits [seq_len, vocab_size]
+            # So W_fused should be [vocab_size, rank]
+            
+            # Get the U matrix from SVD for proper fusion
             U, S, V = torch.svd(W_v)
-            B = U[:, :rank]  # [d_model, rank]
-            W_fused_final = W0 @ B  # [vocab_size, rank]
+            U_truncated = U[:, :rank]  # [d_model, rank]
+            
+            # Fuse with the language model head: W0.T @ U_truncated
+            # W0 is [d_model, vocab_size], so W0.T is [vocab_size, d_model]
+            # U_truncated is [d_model, rank]
+            # Result: [vocab_size, rank]
+            W_fused_final = W0.T @ U_truncated  # [vocab_size, rank]
             
             self.profiles[name] = {
                 "A": A,  # [rank, d_head] - compression matrix

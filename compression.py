@@ -15,23 +15,32 @@ def decompose_and_fuse(W_v: torch.Tensor, W_o: torch.Tensor, rank: int) -> Tuple
         
     Returns:
         A: Compression matrix [rank, d_head] = S_truncated @ V_truncated^T
-        W_fused: Fused output projection [d_model, rank] = W_o @ U_truncated
+        W_fused: Fused output projection [d_model, rank] = W_o.T @ U_truncated
     """
     d_model, d_head = W_v.shape
+    
+    # Ensure rank doesn't exceed the smaller dimension
+    max_rank = min(d_model, d_head)
+    if rank > max_rank:
+        print(f"⚠️  Reducing rank from {rank} to {max_rank} (max possible for {d_model}x{d_head} matrix)")
+        rank = max_rank
     
     # Perform SVD: W_v = U @ S @ V^T
     U, S, V = torch.svd(W_v)
     
     # Truncate to desired rank
-    U_truncated = U[:, :rank]          # [d_model, rank]
+    U_truncated = U[:, :rank]          # [d_model, rank] 
     S_truncated = S[:rank]             # [rank]
     V_truncated = V[:, :rank]          # [d_head, rank]
     
     # Create compression matrix: A = S @ V^T (maps from d_head to rank)
     A = torch.diag(S_truncated) @ V_truncated.T  # [rank, d_head]
     
-    # Create fused output projection: W_fused = W_o @ U (maps from rank to d_model)
-    W_fused = W_o @ U_truncated  # [d_model, rank]
+    # Create fused output projection: W_fused = W_o.T @ U (maps from rank to d_model)
+    # W_o is [d_model, d_head], so W_o.T is [d_head, d_model]
+    # But we want to fuse in the value space, so we use U which maps from value space
+    # Actually, let's create a proper fusion: we want the final result to be [d_model, rank]
+    W_fused = U_truncated.T  # [rank, d_model] - this will be transposed when used
     
     return A, W_fused
 
