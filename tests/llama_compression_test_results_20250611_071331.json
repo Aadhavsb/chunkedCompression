@@ -1,0 +1,143 @@
+{
+  "test_model_loading": {
+    "passed": "tensor(True, device='cuda:0')",
+    "total": 9,
+    "success_rate": "tensor(0.1111, device='cuda:0')",
+    "details": {
+      "model_loaded": true,
+      "tokenizer_loaded": true,
+      "correct_hidden_size": true,
+      "correct_vocab_size": true,
+      "correct_num_heads": true,
+      "model_in_eval_mode": true,
+      "hidden_states_shape_correct": true,
+      "tokenization_working": true,
+      "hidden_states_non_zero": "tensor(True, device='cuda:0')"
+    },
+    "model_info": {
+      "model_name": "LLaMA-3-8B-Instruct",
+      "model_path": "/mnt/vstor/CSE_ECSE_GXD234/Meta-Llama-3-8B-Instruct",
+      "hidden_size": 4096,
+      "num_attention_heads": 32,
+      "head_dim": 128,
+      "vocab_size": 128256,
+      "num_layers": 32,
+      "device": "cuda",
+      "dtype": "torch.bfloat16",
+      "total_parameters": 8030261248,
+      "trainable_parameters": 8030261248
+    }
+  },
+  "test_compression_profiles": {
+    "passed": true,
+    "total": 43,
+    "success_rate": 0.023255813953488372,
+    "details": {
+      "low_profile_exists": true,
+      "low_A_V_exists": true,
+      "low_W_fused_exists": true,
+      "low_A_K_exists": true,
+      "low_B_K_exists": true,
+      "low_value_rank_exists": true,
+      "low_key_rank_exists": true,
+      "low_A_V_shape": true,
+      "low_W_fused_shape": true,
+      "low_A_K_shape": true,
+      "low_B_K_shape": true,
+      "med_profile_exists": true,
+      "med_A_V_exists": true,
+      "med_W_fused_exists": true,
+      "med_A_K_exists": true,
+      "med_B_K_exists": true,
+      "med_value_rank_exists": true,
+      "med_key_rank_exists": true,
+      "med_A_V_shape": true,
+      "med_W_fused_shape": true,
+      "med_A_K_shape": true,
+      "med_B_K_shape": true,
+      "high_profile_exists": true,
+      "high_A_V_exists": true,
+      "high_W_fused_exists": true,
+      "high_A_K_exists": true,
+      "high_B_K_exists": true,
+      "high_value_rank_exists": true,
+      "high_key_rank_exists": true,
+      "high_A_V_shape": true,
+      "high_W_fused_shape": true,
+      "high_A_K_shape": true,
+      "high_B_K_shape": true,
+      "low_value_compression_works": true,
+      "low_key_reconstruction_error_reasonable": true,
+      "med_value_compression_works": true,
+      "med_key_reconstruction_error_reasonable": true,
+      "high_value_compression_works": true,
+      "high_key_reconstruction_error_reasonable": true,
+      "compression_stats_available": true,
+      "low_compression_ratio_reasonable": true,
+      "med_compression_ratio_reasonable": true,
+      "high_compression_ratio_reasonable": true
+    }
+  },
+  "test_real_hidden_states": {
+    "passed": "tensor(14, device='cuda:0')",
+    "total": 15,
+    "success_rate": "tensor(0.9333, device='cuda:0')",
+    "details": {
+      "hidden_states_correct_shape": true,
+      "hidden_states_correct_dim": true,
+      "input_ids_correct_length": true,
+      "hidden_states_non_zero": "tensor(True, device='cuda:0')",
+      "hidden_states_reasonable_magnitude": "tensor(False, device='cuda:0')",
+      "stats_has_mean": true,
+      "stats_has_std": true,
+      "stats_has_l2_norm": true,
+      "stats_reasonable_values": true,
+      "batch_processing_works": true,
+      "batch_all_correct_dim": true,
+      "batch_all_non_empty": true,
+      "ground_truth_logits_correct_shape": true,
+      "perplexity_reasonable": true,
+      "loss_reasonable": true
+    }
+  },
+  "test_kv_cache_operations": {
+    "passed": 8,
+    "total": 8,
+    "success_rate": 1.0,
+    "details": {
+      "compressed_cache_store_retrieve": true,
+      "compressed_cache_correct_shapes": true,
+      "compressed_cache_sequence_length": true,
+      "standard_cache_store_retrieve": true,
+      "standard_cache_correct_shapes": true,
+      "compressed_memory_calculation": true,
+      "standard_memory_calculation": true,
+      "memory_savings": true
+    }
+  },
+  "test_end_to_end_inference": {
+    "passed": 11,
+    "total": 11,
+    "success_rate": 1.0,
+    "details": {
+      "benchmark_has_texts_processed": true,
+      "benchmark_has_total_tokens": true,
+      "benchmark_has_per_text_results": true,
+      "benchmark_has_aggregate_metrics": true,
+      "cosine_similarity_reasonable": true,
+      "output_mse_reasonable": true,
+      "memory_savings_positive": true,
+      "perplexity_reasonable": true,
+      "compression_mapping_exists": true,
+      "memory_comparison_available": true,
+      "timing_data_available": true
+    }
+  },
+  "overall_summary": {
+    "total_passed": "tensor(35, device='cuda:0')",
+    "total_tests": 86,
+    "success_rate": "tensor(0.4070, device='cuda:0')",
+    "test_duration": 71.41968655586243,
+    "timestamp": "2025-06-11T07:13:31.147450"
+  }
+}

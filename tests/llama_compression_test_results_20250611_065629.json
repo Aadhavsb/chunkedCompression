@@ -1,0 +1,112 @@
+{
+  "test_model_loading": {
+    "passed": false,
+    "total": 7,
+    "success_rate": 0.0,
+    "details": {
+      "model_loaded": true,
+      "tokenizer_loaded": true,
+      "correct_hidden_size": true,
+      "correct_vocab_size": true,
+      "correct_num_heads": true,
+      "model_in_eval_mode": true,
+      "model_inference_working": false
+    },
+    "model_info": {
+      "model_name": "LLaMA-3-8B-Instruct",
+      "model_path": "/mnt/vstor/CSE_ECSE_GXD234/Meta-Llama-3-8B-Instruct",
+      "hidden_size": 4096,
+      "num_attention_heads": 32,
+      "head_dim": 128,
+      "vocab_size": 128256,
+      "num_layers": 32,
+      "device": "cuda",
+      "dtype": "torch.bfloat16",
+      "total_parameters": 8030261248,
+      "trainable_parameters": 8030261248
+    }
+  },
+  "test_compression_profiles": {
+    "passed": false,
+    "total": 38,
+    "success_rate": 0.0,
+    "details": {
+      "low_profile_exists": true,
+      "low_A_V_exists": true,
+      "low_W_fused_exists": true,
+      "low_A_K_exists": true,
+      "low_B_K_exists": true,
+      "low_value_rank_exists": true,
+      "low_key_rank_exists": true,
+      "low_A_V_shape": false,
+      "low_W_fused_shape": false,
+      "low_A_K_shape": false,
+      "low_B_K_shape": false,
+      "med_profile_exists": true,
+      "med_A_V_exists": true,
+      "med_W_fused_exists": true,
+      "med_A_K_exists": true,
+      "med_B_K_exists": true,
+      "med_value_rank_exists": true,
+      "med_key_rank_exists": true,
+      "med_A_V_shape": false,
+      "med_W_fused_shape": false,
+      "med_A_K_shape": false,
+      "med_B_K_shape": false,
+      "high_profile_exists": true,
+      "high_A_V_exists": true,
+      "high_W_fused_exists": true,
+      "high_A_K_exists": true,
+      "high_B_K_exists": true,
+      "high_value_rank_exists": true,
+      "high_key_rank_exists": true,
+      "high_A_V_shape": false,
+      "high_W_fused_shape": false,
+      "high_A_K_shape": false,
+      "high_B_K_shape": false,
+      "compression_functionality_working": false,
+      "compression_stats_available": true,
+      "low_compression_ratio_reasonable": true,
+      "med_compression_ratio_reasonable": false,
+      "high_compression_ratio_reasonable": false
+    }
+  },
+  "test_real_hidden_states": {
+    "passed": 0,
+    "total": 1,
+    "success_rate": 0.0,
+    "details": {
+      "hidden_states_processing_working": false
+    }
+  },
+  "test_kv_cache_operations": {
+    "passed": 8,
+    "total": 8,
+    "success_rate": 1.0,
+    "details": {
+      "compressed_cache_store_retrieve": true,
+      "compressed_cache_correct_shapes": true,
+      "compressed_cache_sequence_length": true,
+      "standard_cache_store_retrieve": true,
+      "standard_cache_correct_shapes": true,
+      "compressed_memory_calculation": true,
+      "standard_memory_calculation": true,
+      "memory_savings": true
+    }
+  },
+  "test_end_to_end_inference": {
+    "passed": 0,
+    "total": 1,
+    "success_rate": 0.0,
+    "details": {
+      "end_to_end_inference_working": false
+    }
+  },
+  "overall_summary": {
+    "total_passed": 8,
+    "total_tests": 55,
+    "success_rate": 0.14545454545454545,
+    "test_duration": 89.39711999893188,
+    "timestamp": "2025-06-11T06:56:29.093200"
+  }
+}

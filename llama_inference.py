@@ -70,23 +70,32 @@ class LLaMACompressionInference:
         
         # Extract real attention weights
         attention_weights = self.model_loader.get_attention_weights(layer_idx)
-        W_K = attention_weights["W_K"]  # [hidden_size, hidden_size]
-        W_V = attention_weights["W_V"]  # [hidden_size, hidden_size]
+        W_K = attention_weights["W_K"]  # [num_kv_heads * head_dim, hidden_size] for GQA
+        W_V = attention_weights["W_V"]  # [num_kv_heads * head_dim, hidden_size] for GQA
         
-        # Project to head dimension (simulating single head extraction)
-        W_K_head = W_K[:, head_idx * self.head_dim:(head_idx + 1) * self.head_dim]  # [hidden_size, head_dim]
-        W_V_head = W_V[:, head_idx * self.head_dim:(head_idx + 1) * self.head_dim]  # [hidden_size, head_dim]
+        # Map query head to corresponding key/value head (GQA)
+        num_query_heads = self.model_loader.num_attention_heads     # 32
+        num_kv_heads = self.model_loader.num_key_value_heads        # 8
+        heads_per_kv = num_query_heads // num_kv_heads              # 4
+        kv_head_idx = head_idx // heads_per_kv                      # Which kv head group
+        
+        # Extract the correct K/V head projections for GQA
+        W_K_head = W_K[kv_head_idx * self.head_dim:(kv_head_idx + 1) * self.head_dim, :]  # [head_dim, hidden_size]
+        W_V_head = W_V[kv_head_idx * self.head_dim:(kv_head_idx + 1) * self.head_dim, :]  # [head_dim, hidden_size]
+        
+        print(f"   GQA mapping: query head {head_idx} -> kv head {kv_head_idx} (heads_per_kv={heads_per_kv})")
         
         compression_stats = {"tokens_per_profile": {}}
         
         for token_idx, (hidden_state, profile_name) in enumerate(zip(hidden_states, compression_mapping)):
             # Project hidden state to key/value space using real LLaMA weights
-            key_t = hidden_state @ W_K_head      # [head_dim]
-            value_t = hidden_state @ W_V_head    # [head_dim]
+            # hidden_state: [hidden_size], W_K_head: [head_dim, hidden_size]
+            key_t = W_K_head @ hidden_state      # [head_dim]
+            value_t = W_V_head @ hidden_state    # [head_dim]
             
-            # Compress using real compression matrices
-            compressed_key = self.compression_profiles.compress_keys(key_t)
-            compressed_value = self.compression_profiles.compress_values(value_t, profile_name)
+            # Compress using real compression matrices (pass query head index for GQA mapping)
+            compressed_key = self.compression_profiles.compress_keys(key_t, head_idx)
+            compressed_value = self.compression_profiles.compress_values(value_t, profile_name, head_idx)
             
             # Store in compressed cache
             self.compressed_cache.store_compressed_kv(
@@ -147,10 +156,10 @@ class LLaMACompressionInference:
         
         # Project query using real LLaMA weights
         attention_weights = self.model_loader.get_attention_weights(layer_idx)
-        W_Q = attention_weights["W_Q"]
-        W_Q_head = W_Q[:, head_idx * self.head_dim:(head_idx + 1) * self.head_dim]
+        W_Q = attention_weights["W_Q"]  # [num_query_heads * head_dim, hidden_size]
+        W_Q_head = W_Q[head_idx * self.head_dim:(head_idx + 1) * self.head_dim, :]  # [head_dim, hidden_size]
         
-        query = query_hidden_state @ W_Q_head  # [head_dim]
+        query = W_Q_head @ query_hidden_state  # [head_dim]
         
         # Get all cached compression groups
         cache_groups = self.compressed_cache.get_cache_groups()
@@ -168,9 +177,9 @@ class LLaMACompressionInference:
             if compressed_keys.numel() == 0:
                 continue
             
-            # Reconstruct keys on-the-fly
+            # Reconstruct keys on-the-fly (pass query head index for GQA mapping)
             reconstruction_start = time.time()
-            reconstructed_keys = self.compression_profiles.reconstruct_keys(compressed_keys)
+            reconstructed_keys = self.compression_profiles.reconstruct_keys(compressed_keys, head_idx)
             self.inference_stats["reconstruction_overhead"] += time.time() - reconstruction_start
             
             # Compute attention scores with reconstructed keys
@@ -180,8 +189,8 @@ class LLaMACompressionInference:
             # Apply attention to compressed values (stay in compressed space)
             context = attention_weights @ compressed_values  # [value_rank]
             
-            # Decode directly to output space using fused matrix
-            group_output = self.compression_profiles.decode_to_logits(context, profile_name)
+            # Decode directly to output space using fused matrix (pass query head index)
+            group_output = self.compression_profiles.decode_to_logits(context, profile_name, head_idx)
             
             # Project back to hidden space (simplified - normally would use W_O)
             # For this test, we'll use a simple linear mapping
@@ -215,11 +224,11 @@ class LLaMACompressionInference:
         
         # Project query using real LLaMA weights
         attention_weights = self.model_loader.get_attention_weights(layer_idx)
-        W_Q = attention_weights["W_Q"]
-        W_O = attention_weights["W_O"]
-        W_Q_head = W_Q[:, head_idx * self.head_dim:(head_idx + 1) * self.head_dim]
+        W_Q = attention_weights["W_Q"]  # [num_query_heads * head_dim, hidden_size]
+        W_O = attention_weights["W_O"]  # [hidden_size, num_query_heads * head_dim]
+        W_Q_head = W_Q[head_idx * self.head_dim:(head_idx + 1) * self.head_dim, :]  # [head_dim, hidden_size]
         
-        query = query_hidden_state @ W_Q_head  # [head_dim]
+        query = W_Q_head @ query_hidden_state  # [head_dim]
         
         # Retrieve uncompressed K/V
         keys, values = self.standard_cache.retrieve_kv(layer_idx, head_idx)
@@ -233,8 +242,8 @@ class LLaMACompressionInference:
         context = attention_weights @ values  # [head_dim]
         
         # Apply output projection
-        W_O_head = W_O[head_idx * self.head_dim:(head_idx + 1) * self.head_dim, :]
-        output = context @ W_O_head  # [hidden_size]
+        W_O_head = W_O[:, head_idx * self.head_dim:(head_idx + 1) * self.head_dim]  # [hidden_size, head_dim]
+        output = W_O_head @ context  # [hidden_size]
         
         forward_time = time.time() - start_time
         self.inference_stats["standard_forward_time"] += forward_time

@@ -48,7 +48,8 @@ class LLaMAModelLoader:
     def _extract_dimensions(self):
         """Extract real model dimensions from LLaMA config"""
         self.hidden_size = self.config.hidden_size  # 4096 for LLaMA-3-8B
-        self.num_attention_heads = self.config.num_attention_heads  # 32
+        self.num_attention_heads = self.config.num_attention_heads  # 32 (query heads)
+        self.num_key_value_heads = getattr(self.config, 'num_key_value_heads', self.num_attention_heads)  # 8 for GQA
         self.head_dim = self.hidden_size // self.num_attention_heads  # 128
         self.vocab_size = self.config.vocab_size  # 128256
         self.num_layers = self.config.num_hidden_layers  # 32
@@ -56,10 +57,12 @@ class LLaMAModelLoader:
         
         print(f"📏 LLaMA-3 8B Model Dimensions:")
         print(f"   Hidden size: {self.hidden_size}")
-        print(f"   Attention heads: {self.num_attention_heads}")
+        print(f"   Query heads: {self.num_attention_heads}")
+        print(f"   Key/Value heads: {self.num_key_value_heads}")
         print(f"   Head dimension: {self.head_dim}")
         print(f"   Vocabulary size: {self.vocab_size}")
         print(f"   Number of layers: {self.num_layers}")
+        print(f"   Architecture: {'GQA' if self.num_key_value_heads < self.num_attention_heads else 'MHA'}")
         
     def get_attention_weights(self, layer_idx: int = -1) -> Dict[str, torch.Tensor]:
         """
@@ -78,15 +81,15 @@ class LLaMAModelLoader:
         attention = layer.self_attn
         
         # Extract projection weights
-        W_Q = attention.q_proj.weight.data  # [hidden_size, hidden_size]
-        W_K = attention.k_proj.weight.data  # [hidden_size, hidden_size]  
-        W_V = attention.v_proj.weight.data  # [hidden_size, hidden_size]
+        W_Q = attention.q_proj.weight.data  # [hidden_size, hidden_size] - all query heads
+        W_K = attention.k_proj.weight.data  # [num_kv_heads * head_dim, hidden_size] - fewer key heads
+        W_V = attention.v_proj.weight.data  # [num_kv_heads * head_dim, hidden_size] - fewer value heads
         W_O = attention.o_proj.weight.data  # [hidden_size, hidden_size]
         
         print(f"🔍 Extracted attention weights from layer {layer_idx}:")
-        print(f"   W_Q: {W_Q.shape}")
-        print(f"   W_K: {W_K.shape}")
-        print(f"   W_V: {W_V.shape}")
+        print(f"   W_Q: {W_Q.shape} (query: {self.num_attention_heads} heads)")
+        print(f"   W_K: {W_K.shape} (key: {self.num_key_value_heads} heads)")
+        print(f"   W_V: {W_V.shape} (value: {self.num_key_value_heads} heads)")
         print(f"   W_O: {W_O.shape}")
         
         return {
@@ -126,8 +129,10 @@ class LLaMAModelLoader:
         )
         
         # Move to model device
-        input_ids = inputs['input_ids']
+        input_ids = inputs['input_ids'].to(self.device)
         attention_mask = inputs.get('attention_mask', None)
+        if attention_mask is not None:
+            attention_mask = attention_mask.to(self.device)
         
         # Get hidden states from model
         with torch.no_grad():

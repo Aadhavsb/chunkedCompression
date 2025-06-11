@@ -12,7 +12,6 @@ from datetime import datetime
 import numpy as np
 
 # Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from llama_model_loader import LLaMAModelLoader
@@ -36,69 +35,22 @@ class BaselineVsCompressedComparison:
         print(f"🕐 Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"📍 Model path: {model_path}")
         
-        # Initialize model loader ONCE
-        print(f"🦙 Loading LLaMA-3 8B model (single instance)...")
+        # Initialize model loader
         self.model_loader = LLaMAModelLoader(model_path)
         
-        # Initialize compressed system using shared model loader
-        print(f"🚀 Initializing compressed inference pipeline (shared model)...")
-        self.compressed_inference = self._create_shared_compressed_inference()
+        # Initialize compressed system
+        print(f"🚀 Initializing compressed inference pipeline...")
+        self.compressed_inference = LLaMACompressionInference(model_path)
         
-        # Initialize standard system using shared model loader
-        print(f"🗃️  Initializing standard KV cache (shared model)...")
+        # Initialize standard system
+        print(f"🗃️  Initializing standard KV cache...")
         self.standard_kv_cache = StandardKVCache()
         self.standard_attention = StandardAttentionComputation(self.model_loader, self.standard_kv_cache)
         
-        # Initialize dataset handler using shared model loader
+        # Initialize dataset handler
         self.dataset_handler = LLaMADatasetHandler(self.model_loader)
         
-        print(f"✅ Comparison suite initialized successfully (single model instance)")
-    
-    def _create_shared_compressed_inference(self):
-        """Create compressed inference pipeline using shared model loader"""
-        # Create a modified compressed inference that uses our existing model loader
-        class SharedCompressedInference:
-            def __init__(self, model_loader):
-                self.model_loader = model_loader
-                
-                # Initialize compression profiles using shared model
-                print(f"🔧 Building compression profiles using shared model...")
-                self.compression_profiles = LLaMACompressionProfiles(self.model_loader)
-                
-                # Initialize compressed KV cache
-                self.kv_cache = LLaMAKVCache(enable_compression=True)
-                
-                print(f"✅ Shared compressed inference initialized")
-            
-            def run_compression_benchmark(self, texts, max_length=100):
-                """Run compression benchmark using shared model"""
-                # This is a simplified version that mimics the original benchmark
-                results = {
-                    "per_text_results": [],
-                    "aggregate_metrics": {}
-                }
-                
-                for text in texts:
-                    # Get hidden states using shared model
-                    hidden_states, input_ids = self.model_loader.get_hidden_states(text, max_length)
-                    
-                    # Simulate compression results
-                    text_result = {
-                        "text": text,
-                        "sequence_length": len(input_ids),
-                        "compressed_memory_mb": 50.0,  # Estimated compressed memory
-                        "compression_time": 0.01,
-                        "output_mse": 0.001,
-                        "cosine_similarity": 0.95,
-                        "gt_perplexity": 10.0,
-                        "compression_mapping": {"low": 5, "med": 5, "high": 5}
-                    }
-                    
-                    results["per_text_results"].append(text_result)
-                
-                return results
-        
-        return SharedCompressedInference(self.model_loader)
+        print(f"✅ Comparison suite initialized successfully")
     
     def run_single_text_comparison(self, text: str, max_length: int = 100) -> Dict[str, Any]:
         """
@@ -484,33 +436,6 @@ class BaselineVsCompressedComparison:
             json.dump(results, f, indent=2, default=str)
         
         print(f"💾 Detailed results saved to {filepath}")
-    
-    def cleanup_gpu_memory(self):
-        """Clean up GPU memory to free resources"""
-        try:
-            if hasattr(self.model_loader, 'model') and self.model_loader.model is not None:
-                # Move model to CPU to free GPU memory
-                self.model_loader.model.cpu()
-                del self.model_loader.model
-                self.model_loader.model = None
-            
-            # Clear GPU cache
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
-                torch.cuda.synchronize()
-            
-            print(f"🧹 GPU memory cleaned up successfully")
-            
-        except Exception as e:
-            print(f"⚠️ GPU cleanup warning: {e}")
-    
-    def get_gpu_memory_usage(self):
-        """Get current GPU memory usage"""
-        if torch.cuda.is_available():
-            allocated = torch.cuda.memory_allocated() / 1024**3  # GB
-            cached = torch.cuda.memory_reserved() / 1024**3  # GB
-            return {"allocated_gb": allocated, "cached_gb": cached}
-        return {"allocated_gb": 0, "cached_gb": 0}
 
 
 def main():

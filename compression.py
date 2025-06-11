@@ -25,8 +25,12 @@ def decompose_and_fuse(W_v: torch.Tensor, W_o: torch.Tensor, rank: int) -> Tuple
         print(f"⚠️  Reducing rank from {rank} to {max_rank} (max possible for {d_model}x{d_head} matrix)")
         rank = max_rank
     
+    # Convert to float32 for SVD (bfloat16 not supported)
+    original_dtype = W_v.dtype
+    W_v_float32 = W_v.float()
+    
     # Perform SVD: W_v = U @ S @ V^T
-    U, S, V = torch.svd(W_v)
+    U, S, V = torch.svd(W_v_float32)
     
     # Truncate to desired rank
     U_truncated = U[:, :rank]          # [d_model, rank] 
@@ -41,6 +45,10 @@ def decompose_and_fuse(W_v: torch.Tensor, W_o: torch.Tensor, rank: int) -> Tuple
     # But we want to fuse in the value space, so we use U which maps from value space
     # Actually, let's create a proper fusion: we want the final result to be [d_model, rank]
     W_fused = U_truncated.T  # [rank, d_model] - this will be transposed when used
+    
+    # Convert back to original dtype
+    A = A.to(original_dtype)
+    W_fused = W_fused.to(original_dtype)
     
     return A, W_fused
 
@@ -91,8 +99,12 @@ def compress_keys(W_k: torch.Tensor, rank: int) -> Tuple[torch.Tensor, torch.Ten
         print(f"⚠️  Reducing key rank from {rank} to {max_rank} (max possible for {d_model}x{d_head} matrix)")
         rank = max_rank
     
+    # Convert to float32 for SVD (bfloat16 not supported)
+    original_dtype = W_k.dtype
+    W_k_float32 = W_k.float()
+    
     # Perform SVD: W_k = U @ S @ V^T
-    U, S, V = torch.svd(W_k)
+    U, S, V = torch.svd(W_k_float32)
     
     # Truncate to desired rank
     U_truncated = U[:, :rank]          # [d_model, rank]
@@ -104,6 +116,10 @@ def compress_keys(W_k: torch.Tensor, rank: int) -> Tuple[torch.Tensor, torch.Ten
     
     # Create reconstruction matrix: B_K = V (maps from rank back to d_head)
     B_K = V_truncated  # [d_head, rank]
+    
+    # Convert back to original dtype
+    A_K = A_K.to(original_dtype)
+    B_K = B_K.to(original_dtype)
     
     return A_K, B_K
 
