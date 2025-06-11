@@ -19,15 +19,15 @@ class LLaMACompressionProfiles:
         self.num_query_heads = model_loader.num_attention_heads  # 32 for LLaMA-3 8B
         self.num_kv_heads = model_loader.num_key_value_heads    # 8 for LLaMA-3 8B (GQA)
         
-        # Compression ranks for value tensors (adaptive) - limited by head_dim=128
+        # 🚀 AGGRESSIVE COMPRESSION RANKS - Upgraded for maximum efficiency
         self.value_compression_ranks = {
-            "low": 64,      # Low compression, high quality
-            "med": 96,      # Medium compression  
-            "high": 128     # High compression (max possible for head_dim=128)
+            "low": 32,      # Aggressive compression, ~5.0x total compression
+            "med": 48,      # Medium-aggressive compression, ~3.2x total compression  
+            "high": 64      # Conservative compression, ~2.0x total compression
         }
         
-        # Fixed key compression rank
-        self.key_compression_rank = 128
+        # 🔥 AGGRESSIVE KEY compression rank - from 128 to 32
+        self.key_compression_rank = 32
         
         # Extract real model weights
         self.attention_weights = model_loader.get_attention_weights(layer_idx)
