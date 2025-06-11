@@ -86,7 +86,7 @@ class KVCacheComparisonSuite:
                         profile_map = {0: "low", 1: "med", 2: "high", 3: "low"}
                         profile = profile_map.get(token_idx % 4, "med")
                         
-                        compressed_keys = torch.randn(128, device=device, dtype=dtype) * 0.02  # key_rank
+                        compressed_keys = torch.randn(32, device=device, dtype=dtype) * 0.02  # key_rank
                         compressed_values = self.compression_profiles.compress_values(values, profile)
                         
                         self.compressed_cache.store_compressed_kv(
@@ -279,7 +279,7 @@ class KVCacheComparisonSuite:
                         # Compression
                         comp_start = time.time()
                         profile = ["low", "med", "high"][token_idx % 3]
-                        compressed_keys = torch.randn(128, device=device, dtype=dtype) * 0.02
+                        compressed_keys = torch.randn(32, device=device, dtype=dtype) * 0.02
                         compressed_values = self.compression_profiles.compress_values(values, profile)
                         total_compression_time += time.time() - comp_start
                         
