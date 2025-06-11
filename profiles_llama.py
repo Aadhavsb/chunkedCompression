@@ -35,6 +35,12 @@ class LLaMACompressionProfiles:
         
         # Build compression profiles
         self.profiles = {}
+        
+        # 🔒 Storage for per-head matrices (for fast access during reconstruction)
+        self.heads_per_kv_head = self.num_query_heads // self.num_kv_heads  # 4
+        self.key_compression_matrices = []  # A_K matrices per KV head
+        self.key_reconstruction_matrices = []  # B_K matrices per KV head
+        
         self._build_compression_profiles()
         
     def _build_compression_profiles(self):
@@ -99,6 +105,10 @@ class LLaMACompressionProfiles:
         
         A_K_all = torch.stack(A_K_heads, dim=0)  # [num_kv_heads, key_rank, head_dim]
         B_K_all = torch.stack(B_K_heads, dim=0)  # [num_kv_heads, head_dim, key_rank]
+        
+        # 🔒 Store key matrices for fast access during compression/reconstruction
+        self.key_compression_matrices = A_K_heads     # List of A_K matrices per KV head
+        self.key_reconstruction_matrices = B_K_heads  # List of B_K matrices per KV head
         
         # 3️⃣ Build value compression profiles per head (adaptive ranks)
         for profile_name, value_rank in self.value_compression_ranks.items():
@@ -244,11 +254,13 @@ class LLaMACompressionProfiles:
             Compressed keys [seq_len, key_rank] or [key_rank]
         """
         # Map query head to corresponding key/value head (GQA)
-        heads_per_kv = self.num_query_heads // self.num_kv_heads  # 4
-        kv_head_idx = head_idx // heads_per_kv
+        kv_head_idx = head_idx // self.heads_per_kv_head
         
-        # Use A_K from any profile (they're all the same across profiles)
-        A_K = self.profiles["med"]["A_K"][kv_head_idx]  # [key_rank, head_dim]
+        # 🔒 Use stored key compression matrix (consistent across all profiles)
+        A_K = self.key_compression_matrices[kv_head_idx]  # [key_rank, head_dim]
+        
+        # 🔒 ENSURE OUTPUT RANK CONSISTENCY
+        assert A_K.shape[0] == self.key_compression_rank, f"A_K rank mismatch: expected {self.key_compression_rank}, got {A_K.shape[0]}"
         
         if keys.dim() == 1:
             # Single token: [head_dim] -> [key_rank]
@@ -269,11 +281,24 @@ class LLaMACompressionProfiles:
             Reconstructed keys [seq_len, head_dim] or [head_dim]
         """
         # Map query head to corresponding key/value head (GQA)
-        heads_per_kv = self.num_query_heads // self.num_kv_heads  # 4
-        kv_head_idx = head_idx // heads_per_kv
+        kv_head_idx = head_idx // self.heads_per_kv_head
         
-        # Use B_K from any profile (they're all the same across profiles)
-        B_K = self.profiles["med"]["B_K"][kv_head_idx]  # [head_dim, key_rank]
+        # 🔒 Use stored key reconstruction matrix (consistent across all profiles)
+        B_K = self.key_reconstruction_matrices[kv_head_idx]  # [head_dim, key_rank]
+        
+        # 🔒 FAIL-FAST DIMENSION CHECK
+        expected_key_rank = B_K.shape[1]  # key_rank from B_K shape
+        actual_key_rank = compressed_keys.shape[-1]
+        
+        if actual_key_rank != expected_key_rank:
+            raise ValueError(
+                f"❌ KEY RANK MISMATCH! "
+                f"compressed_keys has rank {actual_key_rank}, "
+                f"but B_K expects rank {expected_key_rank}. "
+                f"compressed_keys.shape={compressed_keys.shape}, "
+                f"B_K.shape={B_K.shape}, kv_head_idx={kv_head_idx}, "
+                f"stored_rank={self.key_compression_rank}"
+            )
         
         if compressed_keys.dim() == 1:
             # Single token: [key_rank] -> [head_dim]
