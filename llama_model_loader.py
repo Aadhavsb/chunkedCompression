@@ -1,11 +1,14 @@
 """
 LLaMA-3 8B Instruct Model Loader
 Real model loading with no placeholders or dummy data
+Uses memory-safe cluster loading approach
 """
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
 import os
+import gc
 from typing import Dict, Tuple, Any
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from llama_loader import LLaMA3Loader
 
 class LLaMAModelLoader:
     def __init__(self, model_path: str = "/mnt/vstor/CSE_ECSE_GXD234/Meta-Llama-3-8B-Instruct"):
@@ -15,35 +18,25 @@ class LLaMAModelLoader:
         self.config = None
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
+        # Use memory-safe cluster loader
+        self.cluster_loader = LLaMA3Loader(model_path, dtype="bfloat16")
+        
         self._load_model()
         self._extract_dimensions()
         
     def _load_model(self):
-        """Load LLaMA-3 8B Instruct model and tokenizer"""
+        """Load LLaMA-3 8B Instruct model using memory-safe cluster loader"""
         print(f"🦙 Loading LLaMA-3 8B Instruct from {self.model_path}")
         
         if not os.path.exists(self.model_path):
             raise FileNotFoundError(f"Model path not found: {self.model_path}")
         
-        # Load tokenizer
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            self.model_path,
-            trust_remote_code=True,
-            use_fast=True
-        )
+        # Use the memory-safe cluster loader
+        self.model, self.tokenizer = self.cluster_loader.load_model()
         
         # Ensure tokenizer has pad token
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
-        
-        # Load model with automatic device mapping for cluster GPUs
-        self.model = AutoModelForCausalLM.from_pretrained(
-            self.model_path,
-            device_map="auto",
-            torch_dtype=torch.float16,  # Use half precision for memory efficiency
-            trust_remote_code=True,
-            low_cpu_mem_usage=True
-        )
         
         self.model.eval()  # Set to evaluation mode
         self.config = self.model.config
@@ -203,3 +196,24 @@ class LLaMAModelLoader:
             "total_parameters": sum(p.numel() for p in self.model.parameters()),
             "trainable_parameters": sum(p.numel() for p in self.model.parameters() if p.requires_grad)
         }
+    
+    def cleanup(self):
+        """Clean up GPU memory and resources"""
+        if hasattr(self, 'cluster_loader') and self.cluster_loader is not None:
+            self.cluster_loader.cleanup()
+        
+        if self.model is not None:
+            del self.model
+            self.model = None
+        
+        if self.tokenizer is not None:
+            del self.tokenizer
+            self.tokenizer = None
+        
+        # Force garbage collection
+        gc.collect()
+        
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        
+        print("🧹 LLaMAModelLoader cleaned up GPU memory")
