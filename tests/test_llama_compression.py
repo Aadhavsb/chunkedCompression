@@ -2,12 +2,16 @@
 Comprehensive LLaMA-3 8B Compression Test Suite
 Production-grade testing with real model weights and data
 """
+import sys
+import os
 import torch
 import json
-import os
 from typing import Dict, List, Any
 import time
 from datetime import datetime
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from llama_model_loader import LLaMAModelLoader
 from profiles_llama import LLaMACompressionProfiles  
