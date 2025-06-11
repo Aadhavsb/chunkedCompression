@@ -1,0 +1,215 @@
+{
+  "memory_comparison": {
+    "10": {
+      "standard_memory_mb": 0.078125,
+      "compressed_memory_mb": 0.0654296875,
+      "memory_savings_percent": 16.25,
+      "compression_ratio": 1.1940298507462686,
+      "cache_details": {
+        "standard": {
+          "total_memory_mb": 0.078125,
+          "total_elements": 40960
+        },
+        "compressed": {
+          "key_memory_mb": 0.0390625,
+          "value_memory_mb": 0.0263671875,
+          "total_memory_mb": 0.0654296875,
+          "total_key_elements": 20480,
+          "total_value_elements": 13824
+        }
+      }
+    },
+    "50": {
+      "standard_memory_mb": 0.390625,
+      "compressed_memory_mb": 0.3291015625,
+      "memory_savings_percent": 15.75,
+      "compression_ratio": 1.1869436201780414,
+      "cache_details": {
+        "standard": {
+          "total_memory_mb": 0.390625,
+          "total_elements": 204800
+        },
+        "compressed": {
+          "key_memory_mb": 0.1953125,
+          "value_memory_mb": 0.1337890625,
+          "total_memory_mb": 0.3291015625,
+          "total_key_elements": 102400,
+          "total_value_elements": 70144
+        }
+      }
+    },
+    "100": {
+      "standard_memory_mb": 0.78125,
+      "compressed_memory_mb": 0.6591796875,
+      "memory_savings_percent": 15.625,
+      "compression_ratio": 1.1851851851851851,
+      "cache_details": {
+        "standard": {
+          "total_memory_mb": 0.78125,
+          "total_elements": 409600
+        },
+        "compressed": {
+          "key_memory_mb": 0.390625,
+          "value_memory_mb": 0.2685546875,
+          "total_memory_mb": 0.6591796875,
+          "total_key_elements": 204800,
+          "total_value_elements": 140800
+        }
+      }
+    },
+    "200": {
+      "standard_memory_mb": 1.5625,
+      "compressed_memory_mb": 1.318359375,
+      "memory_savings_percent": 15.625,
+      "compression_ratio": 1.1851851851851851,
+      "cache_details": {
+        "standard": {
+          "total_memory_mb": 1.5625,
+          "total_elements": 819200
+        },
+        "compressed": {
+          "key_memory_mb": 0.78125,
+          "value_memory_mb": 0.537109375,
+          "total_memory_mb": 1.318359375,
+          "total_key_elements": 409600,
+          "total_value_elements": 281600
+        }
+      }
+    }
+  },
+  "perplexity_comparison": {
+    "text_1": {
+      "text": "The transformer architecture has revolutionized natural language processing.",
+      "standard_perplexity": 34.081729888916016,
+      "compressed_perplexity": 34.25,
+      "perplexity_degradation_percent": 0.493725264628392,
+      "standard_loss": 3.528761386871338,
+      "compressed_loss": 3.53125,
+      "logit_mse": 5.898913059354527e-06,
+      "cosine_similarity": 0.9993857145309448,
+      "standard_time": 0.2210381031036377,
+      "compressed_time": 0.00793313980102539,
+      "speedup": 27.86262547334255
+    },
+    "text_2": {
+      "text": "Large language models can understand and generate human-like text.",
+      "standard_perplexity": 17.66390609741211,
+      "compressed_perplexity": 17.75,
+      "perplexity_degradation_percent": 0.48740013739375576,
+      "standard_loss": 2.871523380279541,
+      "compressed_loss": 2.875,
+      "logit_mse": 5.7801371440291405e-06,
+      "cosine_similarity": 1.0001317262649536,
+      "standard_time": 0.22068214416503906,
+      "compressed_time": 0.007284402847290039,
+      "speedup": 30.295159231499362
+    },
+    "text_3": {
+      "text": "Attention mechanisms allow models to focus on relevant information.",
+      "standard_perplexity": 40.16716766357422,
+      "compressed_perplexity": 40.0,
+      "perplexity_degradation_percent": -0.4161798635501391,
+      "standard_loss": 3.693049907684326,
+      "compressed_loss": 3.6875,
+      "logit_mse": 5.706039246433647e-06,
+      "cosine_similarity": 1.000956654548645,
+      "standard_time": 0.22072696685791016,
+      "compressed_time": 0.007361650466918945,
+      "speedup": 29.983353305049064
+    },
+    "text_4": {
+      "text": "Memory-efficient techniques enable deployment of large models.",
+      "standard_perplexity": 452.4388427734375,
+      "compressed_perplexity": 458.0,
+      "perplexity_degradation_percent": 1.2291511472518055,
+      "standard_loss": 6.114652633666992,
+      "compressed_loss": 6.125,
+      "logit_mse": 5.930736278969562e-06,
+      "cosine_similarity": 0.9978792071342468,
+      "standard_time": 0.22059035301208496,
+      "compressed_time": 0.0073812007904052734,
+      "speedup": 29.88542911592752
+    }
+  },
+  "computational_performance": {
+    "standard_cache": {
+      "mean_time": 0.05293784141540527,
+      "std_time": 0.0009610440834580189,
+      "min_time": 0.052254438400268555,
+      "max_time": 0.05565667152404785
+    },
+    "compressed_cache": {
+      "mean_time": 0.10968658924102784,
+      "std_time": 0.0010636154958614404,
+      "min_time": 0.10876178741455078,
+      "max_time": 0.1127479076385498,
+      "mean_compression_time": 0.049028420448303224,
+      "mean_reconstruction_time": 0.0020589351654052733
+    },
+    "performance_metrics": {
+      "speedup": 0.48262820260623146,
+      "compression_overhead": 0.049028420448303224,
+      "reconstruction_overhead": 0.0020589351654052733,
+      "total_overhead": 0.051087355613708495
+    }
+  },
+  "accuracy_degradation": {
+    "low": {
+      "mean_reconstruction_error": 0.1367431640625,
+      "std_reconstruction_error": 0.014518035294360205,
+      "max_reconstruction_error": 0.1640625,
+      "mean_compression_ratio": 2.0,
+      "profile_stats": {
+        "value_rank": 64,
+        "key_rank": 128,
+        "num_query_heads": 32,
+        "num_kv_heads": 8,
+        "value_compression_ratio": 16.0,
+        "key_compression_ratio": 16.0,
+        "total_compression_ratio": 2.0278884462151394,
+        "memory_savings_percent": 50.687622789783894
+      }
+    },
+    "med": {
+      "mean_reconstruction_error": 0.1339111328125,
+      "std_reconstruction_error": 0.017351426496320536,
+      "max_reconstruction_error": 0.1640625,
+      "mean_compression_ratio": 1.333333333333333,
+      "profile_stats": {
+        "value_rank": 96,
+        "key_rank": 128,
+        "num_query_heads": 32,
+        "num_kv_heads": 8,
+        "value_compression_ratio": 10.666666666666666,
+        "key_compression_ratio": 16.0,
+        "total_compression_ratio": 1.3523746263699767,
+        "memory_savings_percent": 26.05599214145383
+      }
+    },
+    "high": {
+      "mean_reconstruction_error": 0.1326904296875,
+      "std_reconstruction_error": 0.01822203542095414,
+      "max_reconstruction_error": 0.1787109375,
+      "mean_compression_ratio": 1.0,
+      "profile_stats": {
+        "value_rank": 128,
+        "key_rank": 128,
+        "num_query_heads": 32,
+        "num_kv_heads": 8,
+        "value_compression_ratio": 8.0,
+        "key_compression_ratio": 16.0,
+        "total_compression_ratio": 1.014449427005481,
+        "memory_savings_percent": 1.4243614931237825
+      }
+    }
+  },
+  "overall_summary": {
+    "average_memory_savings_percent": 15.8125,
+    "average_compression_ratio": 1.1878359603236701,
+    "computational_speedup": 0.48262820260623146,
+    "average_reconstruction_error": 0.13444824218749998,
+    "test_duration": 74.45307350158691,
+    "timestamp": "2025-06-11T07:48:53.805111",
+    "recommendation": "\ud83d\udd0d EVALUATE: Moderate benefits, test thoroughly with your specific use case"
+  }
+}
