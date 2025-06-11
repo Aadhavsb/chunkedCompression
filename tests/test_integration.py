@@ -2,6 +2,13 @@
 """
 Integration test to validate the complete compression system
 """
+import sys
+import os
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import torch
 import torch.nn.functional as F
 from compression import decompose_and_fuse, compress_keys, compress_key_states, reconstruct_keys

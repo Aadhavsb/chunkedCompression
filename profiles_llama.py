@@ -69,11 +69,15 @@ class LLaMACompressionProfiles:
             # Create fused output projection for language modeling
             # We need to fuse the attention output with the language model head
             U, S, V = torch.svd(W_V_head)
-            U_truncated = U[:, :value_rank]  # [hidden_size, value_rank]
+            U_truncated = U[:, :value_rank]  # [head_dim, value_rank]
             
-            # Fused matrix: LM_HEAD @ U_truncated for direct projection
-            # from compressed latent space to vocabulary logits
-            W_fused_lm = W_LM_HEAD @ U_truncated  # [vocab_size, value_rank]
+            # For the fused LM projection, we need to go through the attention output first
+            # Path: compressed_value -> U_truncated -> W_O -> W_LM_HEAD
+            # First fuse attention output projection
+            W_attn_to_hidden = W_O_head @ U_truncated  # [hidden_size, value_rank]
+            
+            # Then fuse with language model head
+            W_fused_lm = W_LM_HEAD @ W_attn_to_hidden  # [vocab_size, value_rank]
             
             self.profiles[profile_name] = {
                 # Value compression matrices
