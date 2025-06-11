@@ -70,3 +70,75 @@ def validate_compression_matrices(A: torch.Tensor, W_fused: torch.Tensor,
         print(f"❌ W_fused matrix shape mismatch: expected {expected_W_shape}, got {W_fused.shape}")
     
     return A_valid and W_valid
+
+def compress_keys(W_k: torch.Tensor, rank: int) -> Tuple[torch.Tensor, torch.Tensor]:
+    """
+    Perform SVD decomposition of W_k for key compression
+    
+    Args:
+        W_k: Key projection matrix [d_model, d_head]
+        rank: Target compression rank
+        
+    Returns:
+        A_K: Compression matrix [rank, d_head] for compressing keys
+        B_K: Reconstruction matrix [d_head, rank] for reconstructing keys
+    """
+    d_model, d_head = W_k.shape
+    
+    # Ensure rank doesn't exceed the smaller dimension
+    max_rank = min(d_model, d_head)
+    if rank > max_rank:
+        print(f"⚠️  Reducing key rank from {rank} to {max_rank} (max possible for {d_model}x{d_head} matrix)")
+        rank = max_rank
+    
+    # Perform SVD: W_k = U @ S @ V^T
+    U, S, V = torch.svd(W_k)
+    
+    # Truncate to desired rank
+    U_truncated = U[:, :rank]          # [d_model, rank]
+    S_truncated = S[:rank]             # [rank]
+    V_truncated = V[:, :rank]          # [d_head, rank]
+    
+    # Create compression matrix: A_K = S @ V^T (maps from d_head to rank)
+    A_K = torch.diag(S_truncated) @ V_truncated.T  # [rank, d_head]
+    
+    # Create reconstruction matrix: B_K = V (maps from rank back to d_head)
+    B_K = V_truncated  # [d_head, rank]
+    
+    return A_K, B_K
+
+def compress_key_states(key_states: torch.Tensor, A_K: torch.Tensor) -> torch.Tensor:
+    """
+    Compress key states using compression matrix
+    
+    Args:
+        key_states: Key states [seq_len, d_head] or [d_head] for single token
+        A_K: Key compression matrix [rank, d_head]
+        
+    Returns:
+        compressed_keys: Compressed key representations [seq_len, rank] or [rank]
+    """
+    if key_states.dim() == 1:
+        # Single token: [d_head] -> [rank]
+        return A_K @ key_states
+    else:
+        # Multiple tokens: [seq_len, d_head] -> [seq_len, rank]
+        return key_states @ A_K.T
+
+def reconstruct_keys(compressed_keys: torch.Tensor, B_K: torch.Tensor) -> torch.Tensor:
+    """
+    Reconstruct full keys from compressed representations
+    
+    Args:
+        compressed_keys: Compressed key representations [seq_len, rank] or [rank]
+        B_K: Key reconstruction matrix [d_head, rank]
+        
+    Returns:
+        reconstructed_keys: Full key representations [seq_len, d_head] or [d_head]
+    """
+    if compressed_keys.dim() == 1:
+        # Single token: [rank] -> [d_head]
+        return B_K @ compressed_keys
+    else:
+        # Multiple tokens: [seq_len, rank] -> [seq_len, d_head]
+        return compressed_keys @ B_K.T

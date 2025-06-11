@@ -36,44 +36,75 @@ class ChunkedCompressionTester:
         self._setup_compression_profiles()
         
     def _setup_compression_profiles(self):
-        """Create real SVD-based compression profiles"""
-        print("🔧 Setting up compression profiles with real SVD...")
+        """Create real SVD-based compression profiles using actual GPT-2 attention weights"""
+        print("🔧 Setting up compression profiles with real GPT-2 attention matrices...")
         
-        # Create mock W_v and W_o matrices (simulating attention weights)
-        torch.manual_seed(42)
-        W_v = torch.randn(self.d_model, self.d_head) * 0.02
-        W_o = torch.randn(self.d_model, self.d_head) * 0.02
+        # Extract REAL attention matrices from GPT-2's first layer
+        first_layer = self.model.transformer.h[0]
         
-        # Use the actual output projection from GPT-2's last layer
+        # Get actual attention projection matrices
+        # GPT-2 uses combined QKV projection, so we'll extract parts of it
+        qkv_weight = first_layer.attn.c_attn.weight  # [d_model, 3*d_model]
+        
+        # Split into Q, K, V portions (each is d_model x d_model)
+        d_model = self.d_model
+        q_proj = qkv_weight[:, :d_model]           # [d_model, d_model] 
+        k_proj = qkv_weight[:, d_model:2*d_model]  # [d_model, d_model]
+        v_proj = qkv_weight[:, 2*d_model:]         # [d_model, d_model]
+        
+        # Project to head dimension (simulating single head)
+        W_q = q_proj[:, :self.d_head]  # [d_model, d_head]
+        W_k = k_proj[:, :self.d_head]  # [d_model, d_head] 
+        W_v = v_proj[:, :self.d_head]  # [d_model, d_head]
+        
+        # Get actual output projection matrix
+        W_o = first_layer.attn.c_proj.weight[:self.d_head, :]  # [d_head, d_model] -> transpose to [d_model, d_head]
+        W_o = W_o.T
+        
+        # Use the actual language model head from GPT-2
         W0 = self.model.lm_head.weight.T  # [d_model, vocab_size]
         
-        for name, rank in self.ranks.items():
-            print(f"   Creating {name} profile (rank {rank})...")
+        # Fixed key compression rank for all profiles
+        key_compression_rank = 32
+        
+        for name, value_rank in self.ranks.items():
+            print(f"   Creating {name} profile (value rank {value_rank}, key rank {key_compression_rank})...")
             
-            # Get SVD-based compression matrices
-            A, W_fused_attn = decompose_and_fuse(W_v, W_o, rank)
+            # Value compression using real W_v and W_o
+            A_v, W_fused_attn = decompose_and_fuse(W_v, W_o, value_rank)
+            
+            # Key compression using real W_k
+            from compression import compress_keys
+            A_k, B_k = compress_keys(W_k, key_compression_rank)
             
             # Create proper fused output projection for language modeling
             # We want: compressed_latents @ W_fused.T -> logits [seq_len, vocab_size]
             # So W_fused should be [vocab_size, rank]
             
-            # Get the U matrix from SVD for proper fusion
+            # Get the U matrix from value SVD for proper fusion with LM head
             U, S, V = torch.svd(W_v)
-            U_truncated = U[:, :rank]  # [d_model, rank]
+            U_truncated = U[:, :value_rank]  # [d_model, value_rank]
             
             # Fuse with the language model head: W0.T @ U_truncated
             # W0 is [d_model, vocab_size], so W0.T is [vocab_size, d_model]
-            # U_truncated is [d_model, rank]
-            # Result: [vocab_size, rank]
-            W_fused_final = W0.T @ U_truncated  # [vocab_size, rank]
+            # U_truncated is [d_model, value_rank]
+            # Result: [vocab_size, value_rank]
+            W_fused_final = W0.T @ U_truncated  # [vocab_size, value_rank]
             
             self.profiles[name] = {
-                "A": A,  # [rank, d_head] - compression matrix
-                "W_fused": W_fused_final,  # [vocab_size, rank] - fused output projection
-                "r": rank
+                # Value compression matrices
+                "A": A_v,           # Value compression matrix [value_rank, d_head]
+                "W_fused": W_fused_final,  # Fused output projection [vocab_size, value_rank]
+                "r": value_rank,    # Value compression rank
+                
+                # Key compression matrices
+                "A_K": A_k,         # Key compression matrix [key_rank, d_head]
+                "B_K": B_k,         # Key reconstruction matrix [d_head, key_rank]
+                "r_k": key_compression_rank  # Key compression rank (fixed)
             }
             
-            print(f"     A: {A.shape}, W_fused: {W_fused_final.shape}")
+            print(f"     A_v: {A_v.shape}, W_fused: {W_fused_final.shape}")
+            print(f"     A_k: {A_k.shape}, B_k: {B_k.shape}")
     
     def get_real_hidden_states(self, text: str, max_length: int = 32):
         """Get real hidden states from GPT-2"""
@@ -321,21 +352,36 @@ class ChunkedCompressionTester:
         print("\n🔍 Validating compression matrices...")
         
         for option, profile in self.profiles.items():
-            A = profile["A"]
+            A_v = profile["A"]
             W_fused = profile["W_fused"]
-            rank = profile["r"]
+            A_k = profile["A_K"]
+            B_k = profile["B_K"]
+            value_rank = profile["r"]
+            key_rank = profile["r_k"]
             
-            # Check shapes
-            A_correct = A.shape == (rank, self.d_head)
-            W_correct = W_fused.shape == (self.vocab_size, rank)
+            # Check value compression shapes
+            A_v_correct = A_v.shape == (value_rank, self.d_head)
+            W_correct = W_fused.shape == (self.vocab_size, value_rank)
             
-            status = "✅" if (A_correct and W_correct) else "❌"
-            print(f"   {option}: {status} A{A.shape}, W_fused{W_fused.shape}")
+            # Check key compression shapes
+            A_k_correct = A_k.shape == (key_rank, self.d_head)
+            B_k_correct = B_k.shape == (self.d_head, key_rank)
             
-            if not A_correct:
-                print(f"      Expected A: ({rank}, {self.d_head})")
+            all_correct = A_v_correct and W_correct and A_k_correct and B_k_correct
+            status = "✅" if all_correct else "❌"
+            
+            print(f"   {option}: {status}")
+            print(f"     Value: A_v{A_v.shape}, W_fused{W_fused.shape}")
+            print(f"     Key: A_k{A_k.shape}, B_k{B_k.shape}")
+            
+            if not A_v_correct:
+                print(f"      Expected A_v: ({value_rank}, {self.d_head})")
             if not W_correct:
-                print(f"      Expected W_fused: ({self.vocab_size}, {rank})")
+                print(f"      Expected W_fused: ({self.vocab_size}, {value_rank})")
+            if not A_k_correct:
+                print(f"      Expected A_k: ({key_rank}, {self.d_head})")
+            if not B_k_correct:
+                print(f"      Expected B_k: ({self.d_head}, {key_rank})")
 
 def main():
     """Main test function"""

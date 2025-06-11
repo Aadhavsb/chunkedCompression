@@ -45,34 +45,38 @@ class BareDecoder:
         return outputs
     
     def _compress_and_cache(self, X: torch.Tensor, compression_map: List[str]):
-        """Compress tokens and store in KV cache"""
-        print("🗜️  Compressing tokens and caching...")
+        """Compress both keys and values and store in KV cache"""
+        print("🗜️  Compressing keys and values and caching...")
         
         for t, (x_t, option) in enumerate(zip(X, compression_map)):
             # Get compression profile
             profile = profiles[option]
-            A = profile["A"]  # [r_opt, d_head]
+            A_v = profile["A"]      # Value compression matrix [r_v, d_head]
+            A_k = profile["A_K"]    # Key compression matrix [r_k, d_head]
             
-            # Mock value projection: project embedding to head dimension
-            # In real transformer: v_t = x_t @ W_v, but we'll use first d_head dims
-            v_t = x_t[:self.d_head]  # [d_head]
+            # Project embedding to head dimension (simulating K and V projections)
+            # In real transformer: k_t = x_t @ W_k, v_t = x_t @ W_v
+            k_t = x_t[:self.d_head]  # [d_head] - simulated key
+            v_t = x_t[:self.d_head]  # [d_head] - simulated value
             
-            # Compress: h_t = A @ v_t
-            h_t = A @ v_t  # [r_opt]
+            # Compress keys and values
+            h_k = A_k @ k_t  # [r_k] - compressed key
+            h_v = A_v @ v_t  # [r_v] - compressed value
             
-            # Store in cache (using group_id=0 for simplicity)
-            self.kv_cache.append(token_idx=t, group_id=0, h_t=h_t, option=option)
+            # Store both in cache (using group_id=0 for simplicity)
+            self.kv_cache.append(token_idx=t, group_id=0, h_v=h_v, h_k=h_k, option=option)
         
         # Print cache stats
         cache_keys = self.kv_cache.get_all_keys()
-        print(f"   Cached {self.kv_cache.size()} latent vectors across {len(cache_keys)} option groups")
+        print(f"   Cached {self.kv_cache.size()} KV pairs across {len(cache_keys)} option groups")
         for group_id, option in cache_keys:
-            cached_tensor = self.kv_cache.retrieve(group_id, option)
-            print(f"     Group {group_id}, {option}: {cached_tensor.shape}")
+            cached_values = self.kv_cache.retrieve_values(group_id, option)
+            cached_keys = self.kv_cache.retrieve_keys(group_id, option)
+            print(f"     Group {group_id}, {option}: V{cached_values.shape}, K{cached_keys.shape}")
     
     def _attention_over_cache(self, X: torch.Tensor, compression_map: List[str]) -> torch.Tensor:
-        """Perform attention over compressed cache and apply fused projection"""
-        print("🎯 Computing attention over compressed cache...")
+        """Perform attention over compressed cache with on-the-fly key reconstruction"""
+        print("🎯 Computing attention over compressed cache with key reconstruction...")
         
         T = X.shape[0]
         outputs = torch.zeros(T, self.d_model)
@@ -88,34 +92,36 @@ class BareDecoder:
             attention_output = torch.zeros(self.d_model)
             
             for group_id, cached_option in cache_keys:
-                # Get cached latent vectors for this group/option
-                cached_latents = self.kv_cache.retrieve(group_id, cached_option)  # [T_cached, r_opt]
+                # Get cached compressed vectors for this group/option
+                cached_values = self.kv_cache.retrieve_values(group_id, cached_option)  # [T_cached, r_v]
+                cached_keys = self.kv_cache.retrieve_keys(group_id, cached_option)      # [T_cached, r_k]
                 
-                if cached_latents.numel() == 0:
+                if cached_values.numel() == 0 or cached_keys.numel() == 0:
                     continue
                 
-                # Simple attention: dot product with query (projected to latent space)
+                # Get compression profile
                 profile = profiles[cached_option]
-                A = profile["A"]  # [r_opt, d_head]
-                W_fused = profile["W_fused"]  # [d_model, r_opt]
+                A_v = profile["A"]         # Value compression matrix [r_v, d_head]
+                W_fused = profile["W_fused"]  # Fused output projection [rank, d_model]
+                B_k = profile["B_K"]       # Key reconstruction matrix [d_head, r_k]
                 
-                # Project query to latent space: q_compressed = A @ q_t
-                q_compressed = A @ q_t  # [r_opt]
+                # Reconstruct full keys on-the-fly: K = H_K @ B_K^T
+                reconstructed_keys = cached_keys @ B_k.T  # [T_cached, d_head]
                 
-                # Attention scores: scores = cached_latents @ q_compressed
-                scores = cached_latents @ q_compressed  # [T_cached]
+                # Compute attention scores: scores = q @ K^T
+                scores = q_t @ reconstructed_keys.T  # [T_cached]
                 attn_weights = F.softmax(scores, dim=0)  # [T_cached]
                 
-                # Weighted sum of cached latents
-                context = attn_weights @ cached_latents  # [r_opt]
+                # Weighted sum of cached value latents (stay in compressed space)
+                context = attn_weights @ cached_values  # [r_v]
                 
-                # Apply fused output projection
-                group_output = W_fused @ context  # [d_model]
+                # Apply fused output projection (direct from compressed to output)
+                group_output = W_fused.T @ context  # [d_model]
                 attention_output += group_output
             
             outputs[t] = attention_output
         
-        print(f"   Attention computed for {T} tokens")
+        print(f"   Attention computed for {T} tokens with key reconstruction")
         return outputs
     
     def clear_cache(self):
