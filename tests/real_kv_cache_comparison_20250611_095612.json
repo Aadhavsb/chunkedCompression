@@ -1,0 +1,2050 @@
+{
+  "real_kv_data_summary": {
+    "num_texts": 3,
+    "num_layers": 3,
+    "num_heads": 8,
+    "max_length": 80
+  },
+  "memory_comparison": {
+    "text_1": {
+      "text": "The transformer architecture revolutionized natural language processing through self-attention mechanisms.",
+      "sequence_length": 15,
+      "standard_memory_mb": 0.17578125,
+      "compressed_memory_mb": 0.053558349609375,
+      "memory_savings_percent": 69.53125,
+      "compression_ratio": 3.282051282051282,
+      "cache_details": {
+        "standard": {
+          "total_memory_mb": 0.17578125,
+          "total_elements": 92160
+        },
+        "compressed": {
+          "key_memory_mb": 0.02197265625,
+          "value_memory_mb": 0.031585693359375,
+          "total_memory_mb": 0.053558349609375,
+          "total_key_elements": 11520,
+          "total_value_elements": 16560
+        }
+      }
+    },
+    "text_2": {
+      "text": "Large language models exhibit emergent capabilities that scale with model size and training data.",
+      "sequence_length": 17,
+      "standard_memory_mb": 0.19921875,
+      "compressed_memory_mb": 0.060699462890625,
+      "memory_savings_percent": 69.53125,
+      "compression_ratio": 3.282051282051282,
+      "cache_details": {
+        "standard": {
+          "total_memory_mb": 0.19921875,
+          "total_elements": 104448
+        },
+        "compressed": {
+          "key_memory_mb": 0.02490234375,
+          "value_memory_mb": 0.035797119140625,
+          "total_memory_mb": 0.060699462890625,
+          "total_key_elements": 13056,
+          "total_value_elements": 18768
+        }
+      }
+    },
+    "text_3": {
+      "text": "Memory-efficient attention techniques enable deployment of massive neural networks on resource-constrained devices.",
+      "sequence_length": 17,
+      "standard_memory_mb": 0.19921875,
+      "compressed_memory_mb": 0.060699462890625,
+      "memory_savings_percent": 69.53125,
+      "compression_ratio": 3.282051282051282,
+      "cache_details": {
+        "standard": {
+          "total_memory_mb": 0.19921875,
+          "total_elements": 104448
+        },
+        "compressed": {
+          "key_memory_mb": 0.02490234375,
+          "value_memory_mb": 0.035797119140625,
+          "total_memory_mb": 0.060699462890625,
+          "total_key_elements": 13056,
+          "total_value_elements": 18768
+        }
+      }
+    }
+  },
+  "reconstruction_accuracy": {
+    "text_1": {
+      "text": "The transformer architecture revolutionized natural language processing through self-attention mechanisms.",
+      "layers": {
+        "0": {
+          "heads": {
+            "0": {
+              "key_reconstruction_mse": 15.5,
+              "key_cosine_similarity": 0.490234375,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  32
+                ]
+              }
+            },
+            "1": {
+              "key_reconstruction_mse": 15.5,
+              "key_cosine_similarity": 0.490234375,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  48
+                ]
+              }
+            },
+            "2": {
+              "key_reconstruction_mse": 15.5,
+              "key_cosine_similarity": 0.490234375,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.0,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  64
+                ]
+              }
+            },
+            "3": {
+              "key_reconstruction_mse": 15.5,
+              "key_cosine_similarity": 0.490234375,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  32
+                ]
+              }
+            },
+            "4": {
+              "key_reconstruction_mse": 12.4375,
+              "key_cosine_similarity": 0.51171875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  48
+                ]
+              }
+            },
+            "5": {
+              "key_reconstruction_mse": 12.4375,
+              "key_cosine_similarity": 0.51171875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.0,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  64
+                ]
+              }
+            },
+            "6": {
+              "key_reconstruction_mse": 12.4375,
+              "key_cosine_similarity": 0.51171875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  32
+                ]
+              }
+            },
+            "7": {
+              "key_reconstruction_mse": 12.4375,
+              "key_cosine_similarity": 0.51171875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  48
+                ]
+              }
+            }
+          }
+        },
+        "1": {
+          "heads": {
+            "0": {
+              "key_reconstruction_mse": 18.75,
+              "key_cosine_similarity": 0.5625,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  32
+                ]
+              }
+            },
+            "1": {
+              "key_reconstruction_mse": 18.75,
+              "key_cosine_similarity": 0.5625,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  48
+                ]
+              }
+            },
+            "2": {
+              "key_reconstruction_mse": 18.75,
+              "key_cosine_similarity": 0.5625,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.0,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  64
+                ]
+              }
+            },
+            "3": {
+              "key_reconstruction_mse": 18.75,
+              "key_cosine_similarity": 0.5625,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  32
+                ]
+              }
+            },
+            "4": {
+              "key_reconstruction_mse": 17.375,
+              "key_cosine_similarity": 0.515625,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  48
+                ]
+              }
+            },
+            "5": {
+              "key_reconstruction_mse": 17.375,
+              "key_cosine_similarity": 0.515625,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.0,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  64
+                ]
+              }
+            },
+            "6": {
+              "key_reconstruction_mse": 17.375,
+              "key_cosine_similarity": 0.515625,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  32
+                ]
+              }
+            },
+            "7": {
+              "key_reconstruction_mse": 17.375,
+              "key_cosine_similarity": 0.515625,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  48
+                ]
+              }
+            }
+          }
+        },
+        "2": {
+          "heads": {
+            "0": {
+              "key_reconstruction_mse": 25.875,
+              "key_cosine_similarity": 0.51171875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  32
+                ]
+              }
+            },
+            "1": {
+              "key_reconstruction_mse": 25.875,
+              "key_cosine_similarity": 0.51171875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  48
+                ]
+              }
+            },
+            "2": {
+              "key_reconstruction_mse": 25.875,
+              "key_cosine_similarity": 0.51171875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.0,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  64
+                ]
+              }
+            },
+            "3": {
+              "key_reconstruction_mse": 25.875,
+              "key_cosine_similarity": 0.51171875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  32
+                ]
+              }
+            },
+            "4": {
+              "key_reconstruction_mse": 13.1875,
+              "key_cosine_similarity": 0.515625,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  48
+                ]
+              }
+            },
+            "5": {
+              "key_reconstruction_mse": 13.1875,
+              "key_cosine_similarity": 0.515625,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.0,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  64
+                ]
+              }
+            },
+            "6": {
+              "key_reconstruction_mse": 13.1875,
+              "key_cosine_similarity": 0.515625,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  32
+                ]
+              }
+            },
+            "7": {
+              "key_reconstruction_mse": 13.1875,
+              "key_cosine_similarity": 0.515625,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  15,
+                  128
+                ],
+                "values": [
+                  15,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  15,
+                  32
+                ],
+                "values": [
+                  15,
+                  48
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "text_2": {
+      "text": "Large language models exhibit emergent capabilities that scale with model size and training data.",
+      "layers": {
+        "0": {
+          "heads": {
+            "0": {
+              "key_reconstruction_mse": 15.8125,
+              "key_cosine_similarity": 0.5078125,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  32
+                ]
+              }
+            },
+            "1": {
+              "key_reconstruction_mse": 15.8125,
+              "key_cosine_similarity": 0.5078125,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  48
+                ]
+              }
+            },
+            "2": {
+              "key_reconstruction_mse": 15.8125,
+              "key_cosine_similarity": 0.5078125,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  64
+                ]
+              }
+            },
+            "3": {
+              "key_reconstruction_mse": 15.8125,
+              "key_cosine_similarity": 0.5078125,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  32
+                ]
+              }
+            },
+            "4": {
+              "key_reconstruction_mse": 12.25,
+              "key_cosine_similarity": 0.46875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  48
+                ]
+              }
+            },
+            "5": {
+              "key_reconstruction_mse": 12.25,
+              "key_cosine_similarity": 0.46875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  64
+                ]
+              }
+            },
+            "6": {
+              "key_reconstruction_mse": 12.25,
+              "key_cosine_similarity": 0.46875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  32
+                ]
+              }
+            },
+            "7": {
+              "key_reconstruction_mse": 12.25,
+              "key_cosine_similarity": 0.46875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  48
+                ]
+              }
+            }
+          }
+        },
+        "1": {
+          "heads": {
+            "0": {
+              "key_reconstruction_mse": 20.75,
+              "key_cosine_similarity": 0.484375,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  32
+                ]
+              }
+            },
+            "1": {
+              "key_reconstruction_mse": 20.75,
+              "key_cosine_similarity": 0.484375,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  48
+                ]
+              }
+            },
+            "2": {
+              "key_reconstruction_mse": 20.75,
+              "key_cosine_similarity": 0.484375,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  64
+                ]
+              }
+            },
+            "3": {
+              "key_reconstruction_mse": 20.75,
+              "key_cosine_similarity": 0.484375,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  32
+                ]
+              }
+            },
+            "4": {
+              "key_reconstruction_mse": 17.0,
+              "key_cosine_similarity": 0.53125,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  48
+                ]
+              }
+            },
+            "5": {
+              "key_reconstruction_mse": 17.0,
+              "key_cosine_similarity": 0.53125,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  64
+                ]
+              }
+            },
+            "6": {
+              "key_reconstruction_mse": 17.0,
+              "key_cosine_similarity": 0.53125,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  32
+                ]
+              }
+            },
+            "7": {
+              "key_reconstruction_mse": 17.0,
+              "key_cosine_similarity": 0.53125,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  48
+                ]
+              }
+            }
+          }
+        },
+        "2": {
+          "heads": {
+            "0": {
+              "key_reconstruction_mse": 23.5,
+              "key_cosine_similarity": 0.5,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  32
+                ]
+              }
+            },
+            "1": {
+              "key_reconstruction_mse": 23.5,
+              "key_cosine_similarity": 0.5,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  48
+                ]
+              }
+            },
+            "2": {
+              "key_reconstruction_mse": 23.5,
+              "key_cosine_similarity": 0.5,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  64
+                ]
+              }
+            },
+            "3": {
+              "key_reconstruction_mse": 23.5,
+              "key_cosine_similarity": 0.5,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  32
+                ]
+              }
+            },
+            "4": {
+              "key_reconstruction_mse": 12.4375,
+              "key_cosine_similarity": 0.54296875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  48
+                ]
+              }
+            },
+            "5": {
+              "key_reconstruction_mse": 12.4375,
+              "key_cosine_similarity": 0.54296875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  64
+                ]
+              }
+            },
+            "6": {
+              "key_reconstruction_mse": 12.4375,
+              "key_cosine_similarity": 0.54296875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  32
+                ]
+              }
+            },
+            "7": {
+              "key_reconstruction_mse": 12.4375,
+              "key_cosine_similarity": 0.54296875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  48
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "text_3": {
+      "text": "Memory-efficient attention techniques enable deployment of massive neural networks on resource-constrained devices.",
+      "layers": {
+        "0": {
+          "heads": {
+            "0": {
+              "key_reconstruction_mse": 12.4375,
+              "key_cosine_similarity": 0.50390625,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  32
+                ]
+              }
+            },
+            "1": {
+              "key_reconstruction_mse": 12.4375,
+              "key_cosine_similarity": 0.50390625,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  48
+                ]
+              }
+            },
+            "2": {
+              "key_reconstruction_mse": 12.4375,
+              "key_cosine_similarity": 0.50390625,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  64
+                ]
+              }
+            },
+            "3": {
+              "key_reconstruction_mse": 12.4375,
+              "key_cosine_similarity": 0.50390625,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  32
+                ]
+              }
+            },
+            "4": {
+              "key_reconstruction_mse": 12.875,
+              "key_cosine_similarity": 0.46875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  48
+                ]
+              }
+            },
+            "5": {
+              "key_reconstruction_mse": 12.875,
+              "key_cosine_similarity": 0.46875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  64
+                ]
+              }
+            },
+            "6": {
+              "key_reconstruction_mse": 12.875,
+              "key_cosine_similarity": 0.46875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  32
+                ]
+              }
+            },
+            "7": {
+              "key_reconstruction_mse": 12.875,
+              "key_cosine_similarity": 0.46875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  48
+                ]
+              }
+            }
+          }
+        },
+        "1": {
+          "heads": {
+            "0": {
+              "key_reconstruction_mse": 21.125,
+              "key_cosine_similarity": 0.546875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  32
+                ]
+              }
+            },
+            "1": {
+              "key_reconstruction_mse": 21.125,
+              "key_cosine_similarity": 0.546875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  48
+                ]
+              }
+            },
+            "2": {
+              "key_reconstruction_mse": 21.125,
+              "key_cosine_similarity": 0.546875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  64
+                ]
+              }
+            },
+            "3": {
+              "key_reconstruction_mse": 21.125,
+              "key_cosine_similarity": 0.546875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  32
+                ]
+              }
+            },
+            "4": {
+              "key_reconstruction_mse": 19.125,
+              "key_cosine_similarity": 0.51953125,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  48
+                ]
+              }
+            },
+            "5": {
+              "key_reconstruction_mse": 19.125,
+              "key_cosine_similarity": 0.51953125,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  64
+                ]
+              }
+            },
+            "6": {
+              "key_reconstruction_mse": 19.125,
+              "key_cosine_similarity": 0.51953125,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  32
+                ]
+              }
+            },
+            "7": {
+              "key_reconstruction_mse": 19.125,
+              "key_cosine_similarity": 0.51953125,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  48
+                ]
+              }
+            }
+          }
+        },
+        "2": {
+          "heads": {
+            "0": {
+              "key_reconstruction_mse": 23.625,
+              "key_cosine_similarity": 0.51953125,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  32
+                ]
+              }
+            },
+            "1": {
+              "key_reconstruction_mse": 23.625,
+              "key_cosine_similarity": 0.51953125,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  48
+                ]
+              }
+            },
+            "2": {
+              "key_reconstruction_mse": 23.625,
+              "key_cosine_similarity": 0.51953125,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  64
+                ]
+              }
+            },
+            "3": {
+              "key_reconstruction_mse": 23.625,
+              "key_cosine_similarity": 0.51953125,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  32
+                ]
+              }
+            },
+            "4": {
+              "key_reconstruction_mse": 12.1875,
+              "key_cosine_similarity": 0.498046875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  48
+                ]
+              }
+            },
+            "5": {
+              "key_reconstruction_mse": 12.1875,
+              "key_cosine_similarity": 0.498046875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  64
+                ]
+              }
+            },
+            "6": {
+              "key_reconstruction_mse": 12.1875,
+              "key_cosine_similarity": 0.498046875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 4.0,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  32
+                ]
+              }
+            },
+            "7": {
+              "key_reconstruction_mse": 12.1875,
+              "key_cosine_similarity": 0.498046875,
+              "key_compression_ratio": 4.0,
+              "value_compression_ratio": 2.6666666666666665,
+              "original_shapes": {
+                "keys": [
+                  17,
+                  128
+                ],
+                "values": [
+                  17,
+                  128
+                ]
+              },
+              "compressed_shapes": {
+                "keys": [
+                  17,
+                  32
+                ],
+                "values": [
+                  17,
+                  48
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "inference_performance": {
+    "text_1": {
+      "text": "The transformer architecture revolutionized natural language processing through self-attention mechanisms.",
+      "compressed_time": 3.5139882564544678,
+      "standard_time": 0.0032634735107421875,
+      "speedup": 0.0009287092820381125,
+      "output_mse": 0.0027008056640625,
+      "output_cosine_similarity": 0.00099945068359375,
+      "ground_truth_perplexity": 22.296632766723633,
+      "ground_truth_loss": 3.104435682296753
+    },
+    "text_2": {
+      "text": "Large language models exhibit emergent capabilities that scale with model size and training data.",
+      "compressed_time": 3.5520431995391846,
+      "standard_time": 0.0009887218475341797,
+      "speedup": 0.0002783529906568842,
+      "output_mse": 0.0025177001953125,
+      "output_cosine_similarity": -0.01300048828125,
+      "ground_truth_perplexity": 22.215261459350586,
+      "ground_truth_loss": 3.1007795333862305
+    },
+    "text_3": {
+      "text": "Memory-efficient attention techniques enable deployment of massive neural networks on resource-constrained devices.",
+      "compressed_time": 3.5423476696014404,
+      "standard_time": 0.0010640621185302734,
+      "speedup": 0.0003003833101029279,
+      "output_mse": 0.0030364990234375,
+      "output_cosine_similarity": 0.0050048828125,
+      "ground_truth_perplexity": 68.74492645263672,
+      "ground_truth_loss": 4.230402946472168
+    }
+  },
+  "overall_summary": {
+    "average_memory_savings_percent": 69.53125,
+    "average_compression_ratio": 3.2820512820512824,
+    "average_key_reconstruction_mse": 17.01388888888889,
+    "average_key_cosine_similarity": 0.5110677083333334,
+    "average_key_compression_ratio": 4.0,
+    "average_value_compression_ratio": 3.0,
+    "average_inference_speedup": 0.0005024818609326415,
+    "average_output_mse": 0.0027516682942708335,
+    "average_output_cosine_similarity": -0.0023320515950520835,
+    "test_duration": 14.921921014785767,
+    "timestamp": "2025-06-11T09:56:12.759907",
+    "aggressive_compression_enabled": true,
+    "key_rank": 32,
+    "value_ranks": {
+      "low": 32,
+      "med": 48,
+      "high": 64
+    }
+  }
+}

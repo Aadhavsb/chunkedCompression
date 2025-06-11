@@ -122,6 +122,9 @@ class RealKVCacheComparisonSuite:
                     
                     print(f"     🔑 Head {head_idx}: Computing real K/V tensors...")
                     
+                    # Use consistent compression profile for all tokens in this head
+                    profile_name = ["low", "med", "high"][head_idx % 3]  # Per head, not per token
+                    
                     for token_idx, hidden_state in enumerate(hidden_states):
                         # Project hidden state to REAL key/value using LLaMA weights
                         real_key = W_K_head @ hidden_state      # [head_dim]
@@ -130,9 +133,7 @@ class RealKVCacheComparisonSuite:
                         real_keys.append(real_key)
                         real_values.append(real_value)
                         
-                        # Compress using REAL compression profiles
-                        profile_name = ["low", "med", "high"][token_idx % 3]  # Vary compression
-                        
+                        # Compress using REAL compression profiles (consistent profile per head)
                         compressed_key = self.compression_profiles.compress_keys(real_key, head_idx)
                         compressed_value = self.compression_profiles.compress_values(real_value, profile_name, head_idx)
                         
@@ -151,7 +152,7 @@ class RealKVCacheComparisonSuite:
                         "compressed_keys": compressed_keys_tensor,
                         "compressed_values": compressed_values_tensor,
                         "kv_head_idx": kv_head_idx,
-                        "compression_profiles_used": ["low", "med", "high"]
+                        "compression_profile_used": profile_name  # Single profile per head
                     }
                     
                     layer_data["heads"][head_idx] = head_data
@@ -211,8 +212,8 @@ class RealKVCacheComparisonSuite:
                         )
                     
                     # Store in compressed cache (compressed KV tensors)
+                    profile_name = head_data["compression_profile_used"]  # Use the profile from extraction
                     for token_idx in range(seq_len):
-                        profile_name = ["low", "med", "high"][token_idx % 3]
                         self.compressed_cache.store_compressed_kv(
                             layer_idx=layer_idx,
                             head_idx=head_idx,
@@ -267,6 +268,7 @@ class RealKVCacheComparisonSuite:
             
             for layer_idx, layer_data in text_data["layers"].items():
                 layer_accuracy = {"heads": {}}
+                head_accuracy = {}  # Initialize head_accuracy dictionary
                 
                 for head_idx, head_data in layer_data["heads"].items():
                     real_keys = head_data["real_keys"]               # [seq_len, head_dim]
@@ -353,9 +355,9 @@ class RealKVCacheComparisonSuite:
                 for head_idx, head_data in layer_data["heads"].items():
                     compressed_keys = head_data["compressed_keys"]
                     compressed_values = head_data["compressed_values"]
+                    profile_name = head_data["compression_profile_used"]  # Use consistent profile
                     
                     for token_idx in range(len(hidden_states)):
-                        profile_name = compression_mapping[token_idx]
                         self.compressed_cache.store_compressed_kv(
                             layer_idx=layer_idx,
                             head_idx=head_idx,
