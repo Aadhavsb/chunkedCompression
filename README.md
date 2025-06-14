@@ -37,7 +37,26 @@ This system implements **chunked attention compression** for the LLaMA-3 8B Inst
 
 ## Quick Start
 
-### Prerequisites
+### Automated Setup (Recommended)
+
+The project includes automation scripts for cluster environments with Singularity:
+
+```bash
+# 1. Initial setup (one-time)
+./scripts/setup.sh
+
+# 2. Allocate GPU resources
+./scripts/run.sh
+# Note the assigned node (e.g., gpu-node-123)
+
+# 3. SSH to the allocated node
+ssh gpu-node-123
+
+# 4. Start the container
+./scripts/start_container.sh
+```
+
+### Manual Setup
 
 ```bash
 # Install dependencies
@@ -67,7 +86,14 @@ print(f"Cosine similarity: {results['aggregate_metrics']['avg_cosine_similarity'
 
 ```bash
 # Run comprehensive 5-stage test suite
+python run_comprehensive_test.py
+
+# Individual test components
 python tests/test_llama_compression.py
+python tests/test_kv_cache_comparison.py  
+python tests/test_real_kv_comparison.py
+python tests/test_baseline_vs_compressed.py
+python tests/test_integration.py
 ```
 
 ## Compression Profiles
