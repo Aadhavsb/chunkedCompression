@@ -74,10 +74,28 @@ ssh gpu-node-123
 
 ### **⚙️ Manual Setup**
 
+#### **Modern Approach (Recommended)**
 ```bash
-# Install dependencies
+# Install package in development mode
+pip install -e .
+
+# Or install with specific profile
+pip install -e ".[research]"    # Full research environment
+pip install -e ".[dev]"         # Development tools
+pip install -e ".[all]"         # Everything
+```
+
+#### **Traditional Approach (Container/CI)**
+```bash
+# Install dependencies only
 pip install -r requirements.txt
 
+# Then run from source
+python tests/integration/run_comprehensive_test.py
+```
+
+#### **Prerequisites**
+```bash
 # Ensure LLaMA-3 8B Instruct model is available at:
 # /mnt/vstor/CSE_ECSE_GXD234/Meta-Llama-3-8B-Instruct
 ```
@@ -237,6 +255,7 @@ The test suite verifies:
 
 ## 📚 Documentation
 
+- **📋 [Usage Guide](USAGE_GUIDE.md)**: Complete installation and usage instructions
 - **📋 [Project Structure](PROJECT_STRUCTURE.md)**: Detailed file organization
 - **📋 [Module Documentation](MODULE_DOCS.md)**: Complete core module documentation
 - **📋 [Development Guide](CLAUDE.md)**: Development instructions

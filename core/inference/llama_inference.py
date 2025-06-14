@@ -400,3 +400,35 @@ class LLaMACompressionInference:
         # Reset performance stats
         for key in self.inference_stats:
             self.inference_stats[key] = 0.0
+
+
+def main():
+    """CLI entry point for LLaMA compression inference"""
+    print("🚀 Starting LLaMA-3 8B Compression Inference...")
+    
+    try:
+        # Initialize inference pipeline
+        inference = LLaMACompressionInference()
+        
+        # Run compression benchmark
+        results = inference.run_compression_benchmark()
+        
+        # Display results
+        print("\n📊 Compression Results:")
+        metrics = results['aggregate_metrics']
+        print(f"  Memory savings: {metrics['avg_memory_savings']:.2%}")
+        print(f"  Cosine similarity: {metrics['avg_cosine_similarity']:.4f}")
+        print(f"  MSE: {metrics['avg_mse']:.6f}")
+        
+        print("✅ Compression benchmark completed successfully!")
+        
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return 1
+    
+    return 0
+
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(main())

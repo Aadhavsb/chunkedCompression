@@ -50,7 +50,10 @@ except ImportError:
     LLaMACompressionProfileBuilder = None
     SVDCompressionAlgorithm = None
 
-__version__ = "0.2.0"
+try:
+    from ._version import __version__
+except ImportError:
+    __version__ = "0.1.0"
 __author__ = "LLaMA Compression Research Team"
 
 # Dynamic __all__ based on what's available
