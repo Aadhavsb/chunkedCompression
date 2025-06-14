@@ -5,7 +5,7 @@
 ### **🎯 Method 1: Package Installation (Recommended)**
 ```bash
 # Clone repository
-git clone <repository-url>
+git clone https://github.com/Aadhavsb/chunkedCompression
 cd chunkedCompression
 
 # Install in development mode
