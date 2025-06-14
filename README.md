@@ -59,17 +59,17 @@ For cluster environments with Singularity:
 
 ```bash
 # 1. Initial setup (one-time)
-./scripts/setup.sh
+bash scripts/setup.sh        # or ./scripts/setup.sh
 
 # 2. Allocate GPU resources  
-./scripts/run.sh
+bash scripts/run.sh
 # Note the assigned node (e.g., gpu-node-123)
 
 # 3. SSH to the allocated node
 ssh gpu-node-123
 
 # 4. Start the container
-./scripts/start_container.sh
+bash scripts/start_container.sh
 ```
 
 ### **⚙️ Manual Setup**
