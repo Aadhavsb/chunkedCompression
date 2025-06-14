@@ -11,7 +11,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import torch
 import torch.nn.functional as F
-from compression import decompose_and_fuse, compress_keys, compress_key_states, reconstruct_keys
+from core.compression import SVDCompressionAlgorithm
+from legacy.compression import decompose_and_fuse, compress_keys, compress_key_states, reconstruct_keys
 
 def test_basic_svd_compression():
     """Test basic SVD compression functionality"""

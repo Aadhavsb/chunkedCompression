@@ -2,7 +2,7 @@
 
 **Production-grade transformer attention compression using real LLaMA-3 8B Instruct model weights**
 
-## Overview
+## 🚀 Overview
 
 This system implements **chunked attention compression** for the LLaMA-3 8B Instruct model using:
 
@@ -11,41 +11,57 @@ This system implements **chunked attention compression** for the LLaMA-3 8B Inst
 - **Fixed key compression** with on-the-fly reconstruction 
 - **Fused output projections** for direct vocabulary decoding
 - **Production-grade KV caching** with memory optimization
+- **Modular architecture** with clean separation of concerns
 
-## Architecture
+## 🏗️ Architecture
 
-### Core Components
+### **Modern Modular Structure**
 
-1. **LLaMAModelLoader** (`llama_model_loader.py`)
-   - Loads real LLaMA-3 8B Instruct from cluster path
-   - Extracts actual attention matrices (W_Q, W_K, W_V, W_O)
-   - Provides real hidden states extraction
+```
+core/
+├── config/          # Configuration management
+├── model/           # Model loading and management  
+├── compression/     # Compression algorithms and profiles
+├── cache/           # KV cache implementations
+├── inference/       # Inference pipeline and benchmarking
+├── data/            # Dataset handling utilities
+├── utils/           # Utility functions and memory management
+└── interfaces/      # Abstract base classes for extensibility
+```
 
-2. **LLaMACompressionProfiles** (`profiles_llama.py`)
-   - Creates SVD-based compression matrices from real weights
-   - Three value compression levels: 64, 128, 256 ranks
-   - Fixed key compression at rank 128
-   - Fused language model head projections
+### **Core Components**
 
-3. **LLaMAKVCache** (`kv_cache_llama.py`)
-   - Compressed KV storage with metadata tracking
-   - Memory usage optimization and cache performance metrics
+#### **🤖 Model Management** (`core/model/`)
+- **LLaMAModelLoader**: Advanced model loading with configuration support
+- **ModelConfigWrapper**: Unified model configuration interface
+- **LLaMA3Loader**: Memory-safe cluster loading utilities
 
-4. **LLaMACompressionInference** (`llama_inference.py`)
-   - End-to-end compression pipeline
-   - Performance benchmarking with quality metrics
+#### **🗜️ Compression System** (`core/compression/`)
+- **SVDCompressionAlgorithm**: Mathematical SVD-based compression
+- **LLaMACompressionProfileBuilder**: Profile building and management
+- **Legacy compatibility**: Backward-compatible wrappers
 
-## Quick Start
+#### **💾 Caching Layer** (`core/cache/`)
+- **LLaMAKVCache**: Compressed KV storage with metadata
+- **StandardKVCache**: Baseline cache for comparison
+- **Performance metrics**: Hit rates and memory optimization
 
-### Automated Setup (Recommended)
+#### **🚀 Inference Pipeline** (`core/inference/`)
+- **LLaMACompressionInference**: End-to-end compression pipeline
+- **Compressed decoder**: Autoregressive decoding with compression
+- **Benchmarking tools**: Performance and quality metrics
 
-The project includes automation scripts for cluster environments with Singularity:
+## 📦 Quick Start
+
+### **🔧 Automated Setup (Recommended)**
+
+For cluster environments with Singularity:
 
 ```bash
 # 1. Initial setup (one-time)
 ./scripts/setup.sh
 
-# 2. Allocate GPU resources
+# 2. Allocate GPU resources  
 ./scripts/run.sh
 # Note the assigned node (e.g., gpu-node-123)
 
@@ -56,7 +72,7 @@ ssh gpu-node-123
 ./scripts/start_container.sh
 ```
 
-### Manual Setup
+### **⚙️ Manual Setup**
 
 ```bash
 # Install dependencies
@@ -66,78 +82,196 @@ pip install -r requirements.txt
 # /mnt/vstor/CSE_ECSE_GXD234/Meta-Llama-3-8B-Instruct
 ```
 
-### Basic Usage
+## 💻 Usage
+
+### **🆕 Modern API (Recommended)**
 
 ```python
-from llama_inference import LLaMACompressionInference
+from core.model import LLaMAModelLoader
+from core.config import ModelConfig, CompressionConfig
+from core.compression import LLaMACompressionProfileBuilder
+from core.inference import LLaMACompressionInference
+
+# Configure the system
+model_config = ModelConfig.from_env()  # Load from environment
+compression_config = CompressionConfig(
+    value_compression_ranks={"low": 32, "med": 64, "high": 128}
+)
+
+# Initialize components
+model_loader = LLaMAModelLoader(model_config)
+model_loader.load_model()
+
+# Build compression profiles
+profile_builder = LLaMACompressionProfileBuilder(
+    model_loader, compression_config
+)
+profile_builder.build_compression_profiles(layer_idx=0)
+
+# Run inference
+inference = LLaMACompressionInference(
+    model_loader, profile_builder
+)
+results = inference.run_compression_benchmark()
+
+print(f"Memory savings: {results['aggregate_metrics']['avg_memory_savings']:.2%}")
+```
+
+### **🔄 Legacy API (Backward Compatible)**
+
+```python
+# Existing code continues to work unchanged
+from profiles_llama_new import LLaMACompressionProfiles
 
 # Initialize pipeline (loads real LLaMA-3 8B model)
-pipeline = LLaMACompressionInference()
+pipeline = LLaMACompressionProfiles(model_loader)
 
-# Run compression benchmark
-results = pipeline.run_compression_benchmark()
-
-# View results
-print(f"Memory savings: {results['aggregate_metrics']['avg_memory_savings']:.2%}")
-print(f"Cosine similarity: {results['aggregate_metrics']['avg_cosine_similarity']:.4f}")
+# Run compression  
+compressed_values = pipeline.compress_values(values, "med", head_idx=0)
 ```
 
-### Running Tests
+### **⚡ Quick Examples**
+
+#### **Memory Management**
+```python
+from core.utils import MemoryManager
+
+memory_manager = MemoryManager(cleanup_threshold=0.8)
+with memory_manager.managed_computation():
+    # Memory-intensive operations with automatic cleanup
+    result = expensive_computation()
+```
+
+#### **Custom Configuration**
+```python
+from core.config import CompressionConfig
+
+# Custom compression settings
+config = CompressionConfig(
+    value_compression_ranks={"aggressive": 16, "standard": 64},
+    key_compression_rank=32,
+    use_memory_efficient_svd=True
+)
+```
+
+## 🧪 Testing
+
+### **📋 Test Organization**
+
+```
+tests/
+├── unit/           # Component-level tests
+├── integration/    # End-to-end workflow tests  
+└── results/        # Historical test results
+```
+
+### **🏃 Running Tests**
 
 ```bash
-# Run comprehensive 5-stage test suite
-python run_comprehensive_test.py
+# Run comprehensive test suite
+python tests/integration/run_comprehensive_test.py
 
-# Individual test components
-python tests/test_llama_compression.py
-python tests/test_kv_cache_comparison.py  
-python tests/test_real_kv_comparison.py
-python tests/test_baseline_vs_compressed.py
-python tests/test_integration.py
+# Run specific test categories
+python -m pytest tests/unit/           # Unit tests
+python -m pytest tests/integration/    # Integration tests
+
+# Individual test files
+python tests/unit/test_llama_compression.py
+python tests/unit/test_kv_cache_comparison.py
+python tests/integration/test_refactored_imports.py
 ```
 
-## Compression Profiles
+### **📊 Test Coverage**
 
-| Profile | Value Rank | Key Rank | Compression Ratio |
-|---------|-----------|----------|-------------------|
-| **Low** | 64 | 128 | ~15x |
-| **Med** | 128 | 128 | ~8x |
-| **High** | 256 | 128 | ~4x |
+The test suite verifies:
 
-## Key Features
+1. **✅ Model Loading**: Real LLaMA-3 8B loading and inference
+2. **✅ Compression Profiles**: SVD matrices and shape validation  
+3. **✅ Hidden States**: Real transformer output processing
+4. **✅ KV Cache**: Compressed storage and retrieval
+5. **✅ End-to-End**: Complete compression pipeline
+6. **✅ Memory Management**: Resource cleanup and monitoring
+7. **✅ Configuration**: Environment-based setup validation
 
-### Real Model Integration
+## 📈 Compression Profiles
+
+| Profile | Value Rank | Key Rank | Compression Ratio | Memory Savings |
+|---------|-----------|----------|-------------------|----------------|
+| **Low** | 32 | 32 | ~15x | 93% |
+| **Med** | 64 | 32 | ~8x | 87% |
+| **High** | 128 | 32 | ~4x | 75% |
+
+## 🔧 Key Features
+
+### **🎯 Real Model Integration**
 - ✅ **No synthetic data** - all tensors from actual LLaMA-3 8B
 - ✅ **Real attention weights** extracted from model layers
 - ✅ **Actual hidden states** from transformer forward passes
 
-### Compression Technology
+### **⚙️ Compression Technology**
 - ✅ **SVD-based compression** with mathematical guarantees
 - ✅ **Adaptive value compression** based on token importance
 - ✅ **On-the-fly key reconstruction** for memory efficiency
+- ✅ **Fused output projections** for direct vocabulary decoding
 
-### Performance Metrics
-- **Quality**: Output MSE, cosine similarity, perplexity
-- **Efficiency**: Memory savings, compression ratios, timing
+### **📊 Performance Monitoring**
+- **Quality Metrics**: Output MSE, cosine similarity, perplexity
+- **Efficiency Metrics**: Memory savings, compression ratios, timing
 - **Cache Performance**: Hit rates, reconstruction overhead
+- **Memory Management**: Automatic cleanup and monitoring
 
-## System Requirements
+### **🏗️ Architecture Benefits**
+- **Modular Design**: Clean separation of concerns
+- **Configuration Management**: Environment-based settings
+- **Backward Compatibility**: Existing code continues to work
+- **Extensibility**: Interface-based design for custom implementations
+- **Memory Efficiency**: Centralized memory management
+
+## 🖥️ System Requirements
 
 - **GPU Memory**: 16GB+ VRAM for LLaMA-3 8B
 - **RAM**: 32GB+ system memory
 - **Storage**: ~30GB for model weights
 - **CUDA**: Compatible GPU with CUDA 11.8+
+- **Python**: 3.8+ with PyTorch 2.0+
 
-## Testing
+## 📚 Documentation
 
-The comprehensive test suite verifies:
+- **📋 [Project Structure](PROJECT_STRUCTURE.md)**: Detailed file organization
+- **📋 [Module Documentation](MODULE_DOCS.md)**: Complete core module documentation
+- **📋 [Development Guide](CLAUDE.md)**: Development instructions
+- **💡 Individual module docstrings**: See each `core/` module for detailed API docs
 
-1. **Model Loading**: Real LLaMA-3 8B loading and inference
-2. **Compression Profiles**: SVD matrices and shape validation
-3. **Hidden States**: Real transformer output processing
-4. **KV Cache**: Compressed storage and retrieval
-5. **End-to-End**: Complete compression pipeline
+## 🔄 Migration Guide
+
+### **From Legacy Code**
+```python
+# Old imports
+from llama_model_loader import LLaMAModelLoader
+from profiles_llama import LLaMACompressionProfiles
+
+# New imports (recommended)
+from core.model import LLaMAModelLoader  
+from core.compression import LLaMACompressionProfileBuilder
+```
+
+### **Compatibility Layer**
+```python
+# This continues to work unchanged
+from profiles_llama_new import LLaMACompressionProfiles
+# All existing APIs preserved
+```
+
+## 🎯 What's New
+
+- **🏗️ Modular Architecture**: Clean, organized codebase structure
+- **⚙️ Configuration System**: Flexible, environment-based settings
+- **💾 Memory Management**: Centralized resource handling
+- **📐 Abstract Interfaces**: Extensible design patterns
+- **🧪 Organized Testing**: Proper test hierarchy and structure
+- **📚 Complete Documentation**: Comprehensive guides and examples
+- **🔄 Backward Compatibility**: All existing code still works
 
 ---
 
-**Note**: This system uses REAL LLaMA-3 8B model weights with NO synthetic data. All compression is performed on actual transformer representations.
+**Note**: This system uses REAL LLaMA-3 8B model weights with NO synthetic data. All compression is performed on actual transformer representations using production-grade algorithms.

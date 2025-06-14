@@ -12,11 +12,11 @@ from datetime import datetime
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from llama_model_loader import LLaMAModelLoader
-from profiles_llama import LLaMACompressionProfiles
-from kv_cache_llama import LLaMAKVCache, StandardKVCache
-from dataset_llama import LLaMADatasetHandler
-from compressed_autoregressive_decoder import CompressedAutoRegressiveDecoder
+from core.model import LLaMAModelLoader
+from core.compression import LLaMACompressionProfileBuilder
+from core.cache import LLaMAKVCache, StandardKVCache
+from core.data import LLaMADatasetHandler
+from core.inference import CompressedAutoregressiveDecoder
 
 class RealTokenGenerationTest:
     def __init__(self, model_path: str = "/mnt/vstor/CSE_ECSE_GXD234/Meta-Llama-3-8B-Instruct"):

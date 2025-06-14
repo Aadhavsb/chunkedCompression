@@ -10,10 +10,10 @@ from typing import List, Dict, Any, Optional, Tuple
 import time
 from datetime import datetime
 
-from llama_model_loader import LLaMAModelLoader
-from profiles_llama import LLaMACompressionProfiles
-from kv_cache_llama import LLaMAKVCache, StandardKVCache
-from dataset_llama import LLaMADatasetHandler
+from ..model import LLaMAModelLoader
+from ..compression import LLaMACompressionProfileBuilder
+from ..cache import LLaMAKVCache, StandardKVCache
+from ..data import LLaMADatasetHandler
 
 class CompressedAutoRegressiveDecoder:
     def __init__(self, model_path: str = "/mnt/vstor/CSE_ECSE_GXD234/Meta-Llama-3-8B-Instruct"):

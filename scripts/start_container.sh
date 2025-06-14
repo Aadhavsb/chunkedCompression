@@ -1,31 +1,85 @@
 #!/bin/bash
 
-# Container startup script - run this AFTER ssh'ing into the allocated node
-# Usage: ./start_container.sh
+# 🐳 Container Startup Script
+#
+# This script starts the Singularity container with GPU support for the
+# LLaMA-3 8B Compression System. Run this AFTER SSH'ing into the allocated GPU node.
+#
+# Prerequisites:
+# - Successfully allocated GPU resources (via ./scripts/run.sh)
+# - SSH'd into the assigned GPU node
+# - Container setup completed (pytorch_sandbox exists)
+#
+# Usage:
+#   ssh <gpu-node-name>
+#   ./scripts/start_container.sh
+#
+# What this script does:
+# 1. Validates GPU node environment
+# 2. Loads Singularity module
+# 3. Starts container with NVIDIA GPU support
+# 4. Drops you into interactive container shell
+#
+# Inside the container you can:
+# - Run Python scripts with GPU access
+# - Use the core compression modules
+# - Execute tests and benchmarks
+# - Access the LLaMA-3 8B model
 
 set -e  # Exit on any error
 
-echo "Starting Singularity container on $(hostname)..."
+echo "🐳 Starting LLaMA-3 8B Compression Container..."
+echo "=============================================="
+echo "📍 Node: $(hostname)"
+echo "📅 Time: $(date)"
+echo ""
 
-# Check if we're on a GPU node
+# Validate GPU environment
+echo "🔍 Validating GPU environment..."
 if ! nvidia-smi &> /dev/null; then
-    echo "Warning: nvidia-smi not available. Make sure you're on a GPU node."
+    echo "⚠️  Warning: nvidia-smi not available. Make sure you're on a GPU node."
+    echo "   Expected to be on a node like: gpu-node-XXX"
+else
+    echo "✅ GPU environment detected"
+    nvidia-smi --query-gpu=name,memory.total --format=csv,noheader,nounits | head -1 | \
+    while IFS=, read name memory; do
+        echo "   GPU: $name ($memory MB)"
+    done
 fi
 
-# Check if sandbox exists
+# Validate container environment
+echo ""
+echo "🔍 Validating container environment..."
 if [ ! -d "pytorch_sandbox" ]; then
-    echo "Error: pytorch_sandbox directory not found!"
-    echo "Make sure you're in the correct directory and ran setup.sh first."
+    echo "❌ Error: pytorch_sandbox directory not found!"
+    echo ""
+    echo "📋 Troubleshooting:"
+    echo "  • Make sure you're in the correct directory"
+    echo "  • Run setup first: ./scripts/setup.sh"
+    echo "  • Check current directory: pwd"
+    echo ""
     exit 1
 fi
+echo "✅ Container sandbox found"
 
-# Load singularity module
-echo "Loading Singularity module..."
+# Load required modules
+echo ""
+echo "📦 Loading Singularity module..."
 module load singularity
 
-# Start the container with GPU support
-echo "Starting Singularity container with GPU and NVIDIA support..."
-echo "You'll be dropped into the container shell where you can run your Python scripts."
+# Start container
 echo ""
+echo "🚀 Starting Singularity container with GPU support..."
+echo ""
+echo "📋 Inside the container you can:"
+echo "  • Run: python tests/integration/run_comprehensive_test.py"
+echo "  • Use: from core.model import LLaMAModelLoader"
+echo "  • Execute: python tests/integration/test_token_generation.py"
+echo "  • Access: /mnt/vstor/CSE_ECSE_GXD234/Meta-Llama-3-8B-Instruct"
+echo ""
+echo "🔗 Documentation: See README.md and CLAUDE.md for usage examples"
+echo ""
+echo "⚡ Entering container shell..."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 singularity shell --nv --writable pytorch_sandbox/

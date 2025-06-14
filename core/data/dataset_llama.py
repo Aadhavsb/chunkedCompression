@@ -4,7 +4,7 @@ Processes real text through actual LLaMA model - NO SYNTHETIC DATA
 """
 import torch
 from typing import List, Tuple, Dict, Optional
-from llama_model_loader import LLaMAModelLoader
+from ..model import LLaMAModelLoader
 import json
 
 class LLaMADatasetHandler:

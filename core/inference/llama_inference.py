@@ -6,10 +6,10 @@ import torch
 import torch.nn.functional as F
 from typing import List, Tuple, Dict, Optional
 import time
-from llama_model_loader import LLaMAModelLoader
-from profiles_llama import LLaMACompressionProfiles
-from kv_cache_llama import LLaMAKVCache, StandardKVCache
-from dataset_llama import LLaMADatasetHandler
+from ..model import LLaMAModelLoader
+from ..compression import LLaMACompressionProfileBuilder
+from ..cache import LLaMAKVCache, StandardKVCache
+from ..data import LLaMADatasetHandler
 
 class LLaMACompressionInference:
     def __init__(self, model_path: str = "/mnt/vstor/CSE_ECSE_GXD234/Meta-Llama-3-8B-Instruct"):
