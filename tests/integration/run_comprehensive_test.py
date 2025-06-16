@@ -12,10 +12,7 @@ from typing import Dict, Any
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 try:
-    # Import from proper location after refactoring
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-    from tests.unit.test_llama_compression import LLaMACompressionTestSuite
-    import torch
+    from tests.test_llama_compression import LLaMACompressionTestSuite
 except ImportError as e:
     print(f"❌ Failed to import test module: {e}")
     print("🔍 Current directory:", os.getcwd()) 
