@@ -150,6 +150,7 @@ class LLaMACompressionProfileBuilder(CompressionProfileInterface):
         value_rank = self.config.get_value_rank(profile_name)
         
         W_V = attention_weights["W_V"]  # [num_kv_heads * head_dim, hidden_size]
+        W_K = attention_weights["W_K"]  # [num_kv_heads * head_dim, hidden_size]
         W_O = attention_weights["W_O"]  # [hidden_size, hidden_size]
         
         # Reshape for per-head processing

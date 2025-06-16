@@ -35,8 +35,13 @@ class LLaMACompressionInference:
             from ..config import CompressionConfig
             compression_config = CompressionConfig()
             self.compression_profiles = LLaMACompressionProfileBuilder(self.model_loader, compression_config)
+            # Auto-build profiles for last layer (-1) for convenience
+            self.compression_profiles.build_compression_profiles(layer_idx=-1)
         else:
             self.compression_profiles = profile_builder
+            # Ensure profiles are built if not already
+            if not self.compression_profiles.profiles:
+                self.compression_profiles.build_compression_profiles(layer_idx=-1)
         
         # Create dataset handler
         self.dataset_handler = LLaMADatasetHandler(self.model_loader)
