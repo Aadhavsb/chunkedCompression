@@ -86,7 +86,7 @@ class LLaMAModelLoader(ModelLoaderInterface):
     def _load_with_cluster_loader(self) -> None:
         """Load model using the cluster loader for memory efficiency."""
         try:
-            from llama_loader import LLaMA3Loader
+            from .llama_loader import LLaMA3Loader
             
             # Initialize cluster loader
             self._cluster_loader = LLaMA3Loader(
@@ -259,6 +259,41 @@ class LLaMAModelLoader(ModelLoaderInterface):
         if self.model_config_wrapper is None:
             raise RuntimeError("Model not loaded. Call load_model() first.")
         return self.model_config_wrapper
+    
+    @property
+    def hidden_size(self) -> int:
+        """Get hidden size for backward compatibility."""
+        return self.get_model_config().get_hidden_size()
+    
+    @property 
+    def vocab_size(self) -> int:
+        """Get vocabulary size for backward compatibility."""
+        return self.get_model_config().get_vocab_size()
+    
+    @property
+    def num_heads(self) -> int:
+        """Get number of attention heads for backward compatibility."""
+        return self.get_model_config().get_num_heads()
+    
+    @property
+    def num_attention_heads(self) -> int:
+        """Get number of attention heads for backward compatibility."""
+        return self.get_model_config().get_num_heads()
+    
+    @property
+    def num_key_value_heads(self) -> int:
+        """Get number of key-value heads for backward compatibility."""
+        return self.get_model_config().get_num_key_value_heads()
+    
+    @property
+    def head_dim(self) -> int:
+        """Get head dimension for backward compatibility."""
+        return self.get_model_config().get_head_dim()
+    
+    @property
+    def num_layers(self) -> int:
+        """Get number of layers for backward compatibility."""
+        return self.get_model_config().get_num_layers()
     
     def generate_text(self, prompt: str, max_new_tokens: int = 50, temperature: float = 0.7) -> str:
         """
