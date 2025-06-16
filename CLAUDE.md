@@ -121,6 +121,26 @@ ssh gpu-node-123
 # - Drops you into interactive shell
 ```
 
+### **🛠️ Development & Utility Scripts**
+
+Additional scripts for development workflow:
+
+```bash
+# Development environment setup
+./scripts/dev_setup.sh          # Install dev dependencies, pre-commit hooks
+
+# Testing and quality
+./scripts/run_tests.sh           # Flexible test runner with options
+./scripts/check_gpu.sh           # GPU environment validation
+
+# Performance and monitoring  
+./scripts/monitor_resources.sh   # Real-time resource monitoring
+./scripts/benchmark.sh           # Comprehensive performance benchmarking
+
+# Maintenance
+./scripts/cleanup.sh             # Clean temporary files and artifacts
+```
+
 ### **⚙️ Manual Installation**
 ```bash
 # Install dependencies
@@ -130,7 +150,27 @@ pip install -r requirements.txt
 # /mnt/vstor/CSE_ECSE_GXD234/Meta-Llama-3-8B-Instruct
 ```
 
-### **🔑 Key Dependencies**
+### **📦 Modern Package Management**
+
+The project uses `pyproject.toml` for modern Python packaging and development:
+
+```bash
+# Development installation (recommended)
+pip install -e ".[dev]"        # Development tools + testing
+pip install -e ".[research]"   # Full research environment  
+pip install -e ".[all]"        # Everything included
+
+# Traditional approach (container/CI)
+pip install -r requirements.txt
+```
+
+**Key features:**
+- **Optional dependencies**: Different profiles for different use cases
+- **CLI commands**: `llama-benchmark`, `llama-compress`
+- **Tool configuration**: pytest, black, mypy, coverage
+- **Build system**: Modern setuptools with version management
+
+### **🔑 Core Dependencies**
 ```
 torch>=2.0.0
 transformers>=4.30.0
@@ -321,7 +361,7 @@ chunkedCompression/
 │   ├── Original implementation (preserved)
 ├── 🧪 tests/ (9 + 14 result files)
 │   ├── Organized test hierarchy
-├── 🚀 scripts/ (3 files)
+├── 🚀 scripts/ (9 files)
 │   ├── Deployment automation
 └── 🔗 profiles_llama_new.py
     ├── Backward compatibility wrapper

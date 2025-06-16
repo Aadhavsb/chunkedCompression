@@ -116,3 +116,4 @@ pytorch.sif
 test_results/
 logs/
 checkpoints/
+core/_version.py

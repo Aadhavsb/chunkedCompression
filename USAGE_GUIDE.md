@@ -47,7 +47,7 @@ python -m pytest tests/
 # Method 1: Using installed package
 llama-benchmark  # CLI command from pyproject.toml
 
-# Method 2: Direct execution
+# Method 2: Direct execution (LLaMA-3 8B comprehensive test)
 python tests/integration/run_comprehensive_test.py
 
 # Method 3: With pytest
