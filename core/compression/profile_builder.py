@@ -141,7 +141,11 @@ class LLaMACompressionProfileBuilder(CompressionProfileInterface):
             # The reconstruction matrix from SVD is U_truncated [hidden_size, key_rank]
             # But we need to project this back to head_dim space
             # B_K should be the pseudo-inverse of A_K transposed
-            B_K = torch.pinverse(A_K).T  # [head_dim, key_rank]
+            
+            # Convert to float32 for pinverse (bfloat16 not supported)
+            original_dtype = A_K.dtype
+            A_K_float = A_K.float() if A_K.dtype in [torch.bfloat16, torch.float16] else A_K
+            B_K = torch.pinverse(A_K_float).T.to(original_dtype)  # [head_dim, key_rank]
             
             self.key_compression_matrices.append(A_K)
             self.key_reconstruction_matrices.append(B_K)
