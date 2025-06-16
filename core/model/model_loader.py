@@ -295,6 +295,10 @@ class LLaMAModelLoader(ModelLoaderInterface):
         """Get number of layers for backward compatibility."""
         return self.get_model_config().get_num_layers()
     
+    def get_hidden_states(self, input_text: str, max_length: int = 50) -> torch.Tensor:
+        """Get hidden states for backward compatibility."""
+        return self.extract_hidden_states(input_text, max_length)
+    
     def generate_text(self, prompt: str, max_new_tokens: int = 50, temperature: float = 0.7) -> str:
         """
         Generate text using the LLaMA model.
