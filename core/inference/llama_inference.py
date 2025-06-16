@@ -23,8 +23,12 @@ class LLaMACompressionInference:
             from ..config import ModelConfig
             model_config = ModelConfig(model_path=model_path)
             self.model_loader = LLaMAModelLoader(model_config)
+            self.model_loader.load_model()  # Auto-load for convenience
         else:
             self.model_loader = model_loader
+            # Ensure model is loaded
+            if self.model_loader.model is None:
+                self.model_loader.load_model()
         
         # Create compression profiles from real model weights
         if profile_builder is None:

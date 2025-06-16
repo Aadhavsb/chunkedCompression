@@ -74,17 +74,17 @@ pytest tests/integration/ -v
 
 ### **🚀 Basic Compression Pipeline**
 ```bash
-# Using modern API
+# Using modern API (auto-loading)
 python -c "
 from core.model import LLaMAModelLoader
 from core.config import ModelConfig
 from core.compression import LLaMACompressionProfileBuilder
 from core.inference import LLaMACompressionInference
 
-# Configure and run
+# Configure and run (models auto-load for convenience)
 config = ModelConfig.from_env()
 loader = LLaMAModelLoader(config)
-loader.load_model()
+# loader.load_model()  # Optional - auto-called by inference classes
 
 builder = LLaMACompressionProfileBuilder(loader)
 builder.build_compression_profiles(layer_idx=0)
@@ -92,6 +92,16 @@ builder.build_compression_profiles(layer_idx=0)
 inference = LLaMACompressionInference(loader, builder)
 results = inference.run_compression_benchmark()
 print(f'Memory savings: {results[\"aggregate_metrics\"][\"avg_memory_savings\"]:.2%}')
+"
+
+# Or even simpler - let inference handle everything
+python -c "
+from core.inference import LLaMACompressionInference
+
+# Simplest usage - everything auto-configured
+inference = LLaMACompressionInference()  # Uses default model path
+results = inference.run_compression_benchmark()
+print(f'Results: {results[\"aggregate_metrics\"]}')
 "
 ```
 

@@ -30,6 +30,7 @@ class RealTokenGenerationTest:
         from core.config import ModelConfig
         model_config = ModelConfig(model_path=model_path)
         self.model_loader = LLaMAModelLoader(model_config)
+        self.model_loader.load_model()  # Auto-load for convenience
         from core.config import CompressionConfig
         compression_config = CompressionConfig()
         self.compression_profiles = LLaMACompressionProfileBuilder(self.model_loader, compression_config)

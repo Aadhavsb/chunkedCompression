@@ -134,9 +134,9 @@ compression_config = CompressionConfig(
     value_compression_ranks={"low": 32, "med": 64, "high": 128}
 )
 
-# Initialize components
+# Initialize components (auto-loading enabled)
 model_loader = LLaMAModelLoader(model_config)
-model_loader.load_model()
+# model_loader.load_model()  # Optional - auto-called by inference classes
 
 # Build compression profiles
 profile_builder = LLaMACompressionProfileBuilder(

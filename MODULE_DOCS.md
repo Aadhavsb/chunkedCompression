@@ -99,11 +99,13 @@ from core.config import ModelConfig
 
 config = ModelConfig.from_env()
 loader = LLaMAModelLoader(config)
-loader.load_model()
+# loader.load_model()  # Optional - auto-called by inference classes
 
-# Extract attention weights
+# Extract attention weights (will auto-load if needed)
 weights = loader.get_attention_weights(layer_idx=0)
 ```
+
+**Auto-Loading Feature**: Inference classes automatically call `load_model()` for convenience. Manual loading is only needed for direct model loader usage.
 
 #### `ModelConfigWrapper` (`model_config_wrapper.py`)
 ```python
