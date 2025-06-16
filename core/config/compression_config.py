@@ -3,7 +3,7 @@ Compression configuration management.
 """
 import os
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any
 
 
 @dataclass

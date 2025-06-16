@@ -4,7 +4,7 @@ Production-grade compressed attention with real model weights
 """
 import torch
 import torch.nn.functional as F
-from typing import List, Tuple, Dict, Optional
+from typing import List, Dict, Optional
 import time
 from ..model import LLaMAModelLoader
 from ..compression import LLaMACompressionProfileBuilder
@@ -330,11 +330,14 @@ class LLaMACompressionInference:
             # Standard attention  
             standard_output = self.standard_attention_forward(query_state, 0, 0)
             
-            # Calculate metrics
-            output_mse = F.mse_loss(compressed_output, standard_output).item()
+            # Calculate metrics (convert to float32 for MSE computation)
+            compressed_float = compressed_output.float() if compressed_output.dtype in [torch.bfloat16, torch.float16] else compressed_output
+            standard_float = standard_output.float() if standard_output.dtype in [torch.bfloat16, torch.float16] else standard_output
+            
+            output_mse = F.mse_loss(compressed_float, standard_float).item()
             output_cosine_sim = F.cosine_similarity(
-                compressed_output.unsqueeze(0), 
-                standard_output.unsqueeze(0)
+                compressed_float.unsqueeze(0), 
+                standard_float.unsqueeze(0)
             ).item()
             
             # Get ground truth logits for perplexity calculation
