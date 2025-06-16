@@ -295,9 +295,48 @@ class LLaMAModelLoader(ModelLoaderInterface):
         """Get number of layers for backward compatibility."""
         return self.get_model_config().get_num_layers()
     
-    def get_hidden_states(self, input_text: str, max_length: int = 50) -> torch.Tensor:
+    def get_hidden_states(self, input_text: str, max_length: int = 50) -> tuple[torch.Tensor, torch.Tensor]:
         """Get hidden states for backward compatibility."""
-        return self.extract_hidden_states(input_text, max_length)
+        if self.model is None:
+            raise RuntimeError("Model not loaded. Call load_model() first.")
+        
+        print(f"🧠 Processing text: '{input_text[:50]}{'...' if len(input_text) > 50 else ''}'")
+        
+        # Tokenize input
+        inputs = self.tokenizer(
+            input_text,
+            return_tensors="pt",
+            max_length=max_length,
+            truncation=True,
+            padding=True
+        )
+        
+        # Move to model device
+        input_ids = inputs['input_ids'].to(self.device)
+        attention_mask = inputs.get('attention_mask', None)
+        if attention_mask is not None:
+            attention_mask = attention_mask.to(self.device)
+        
+        # Get hidden states from model
+        with torch.no_grad():
+            with self.memory_manager.managed_computation():
+                outputs = self.model.model(
+                    input_ids=input_ids,
+                    attention_mask=attention_mask,
+                    output_hidden_states=True,
+                    use_cache=False
+                )
+                
+                # Extract last layer hidden states
+                hidden_states = outputs.hidden_states[-1]
+        
+        # Remove batch dimension if batch_size=1
+        if hidden_states.shape[0] == 1:
+            hidden_states = hidden_states.squeeze(0)
+            input_ids = input_ids.squeeze(0)
+        
+        print(f"   Hidden states shape: {hidden_states.shape}")
+        return hidden_states, input_ids
     
     def generate_text(self, prompt: str, max_new_tokens: int = 50, temperature: float = 0.7) -> str:
         """
