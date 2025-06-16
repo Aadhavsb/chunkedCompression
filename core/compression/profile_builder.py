@@ -134,7 +134,14 @@ class LLaMACompressionProfileBuilder(CompressionProfileInterface):
             # We need A_K: [key_rank, head_dim] and B_K: [head_dim, key_rank]
             
             A_K = compression_matrix  # [key_rank, head_dim]
-            B_K = reconstruction_matrix.T  # [head_dim, key_rank]
+            
+            # For reconstruction, we need B_K such that:
+            # original_approx = compressed @ B_K.T where compressed = original @ A_K.T
+            # Since A_K is [key_rank, head_dim], we need B_K as [head_dim, key_rank]
+            # The reconstruction matrix from SVD is U_truncated [hidden_size, key_rank]
+            # But we need to project this back to head_dim space
+            # B_K should be the pseudo-inverse of A_K transposed
+            B_K = torch.pinverse(A_K).T  # [head_dim, key_rank]
             
             self.key_compression_matrices.append(A_K)
             self.key_reconstruction_matrices.append(B_K)
@@ -444,13 +451,14 @@ class LLaMACompressionProfileBuilder(CompressionProfileInterface):
             original_key_params = self.num_kv_heads * self.head_dim * self.model_config.get_hidden_size()
             original_output_params = self.model_config.get_hidden_size() * self.model_config.get_hidden_size()
             
-            compressed_value_params = self.num_query_heads * (value_rank * self.head_dim + self.model_config.get_vocab_size() * value_rank)
+            # Compressed parameters (just the compression matrices, not including fused projections for fair comparison)
+            compressed_value_params = self.num_query_heads * value_rank * self.head_dim
             compressed_key_params = self.num_kv_heads * (key_rank * self.head_dim + self.head_dim * key_rank)
             
             # Calculate compression ratios
-            value_compression_ratio = original_value_params / (compressed_value_params - self.num_query_heads * self.model_config.get_vocab_size() * value_rank)
+            value_compression_ratio = original_value_params / compressed_value_params
             key_compression_ratio = original_key_params / compressed_key_params
-            total_compression_ratio = (original_value_params + original_key_params + original_output_params) / (compressed_value_params + compressed_key_params)
+            total_compression_ratio = (original_value_params + original_key_params) / (compressed_value_params + compressed_key_params)
             
             stats[profile_name] = {
                 "value_rank": value_rank,
