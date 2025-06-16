@@ -12,9 +12,9 @@ class CompressionConfig:
     
     # Compression ranks for different profiles
     value_compression_ranks: Dict[str, int] = field(default_factory=lambda: {
-        "low": 64,      # High compression, lower quality
-        "med": 128,     # Balanced compression and quality  
-        "high": 256     # Lower compression, higher quality
+        "low": 32,      # High compression, lower quality
+        "med": 64,      # Balanced compression and quality  
+        "high": 128     # Lower compression, higher quality
     })
     
     # Key compression configuration

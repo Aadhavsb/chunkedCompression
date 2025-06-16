@@ -395,6 +395,34 @@ class LLaMACompressionProfileBuilder(CompressionProfileInterface):
         """Print compression summary for all profiles."""
         self._print_profile_summary()
     
+    def decode_to_logits(self, compressed_values: torch.Tensor, profile_name: str, head_idx: int = 0) -> torch.Tensor:
+        """
+        Decode compressed values directly to vocabulary logits using fused projection.
+        
+        Args:
+            compressed_values: Compressed value tensor [seq_len, value_rank] or [value_rank]
+            profile_name: Compression profile name
+            head_idx: Attention head index
+            
+        Returns:
+            Vocabulary logits [seq_len, vocab_size] or [vocab_size]
+        """
+        if profile_name not in self.profiles:
+            raise ValueError(f"Unknown profile: {profile_name}")
+        
+        if head_idx >= self.num_query_heads:
+            raise ValueError(f"Head index {head_idx} out of range for {self.num_query_heads} heads")
+        
+        # Get fused projection matrix
+        W_fused = self.profiles[profile_name]["W_fused"][head_idx]  # [vocab_size, value_rank]
+        
+        if compressed_values.dim() == 1:
+            # Single token: [value_rank] -> [vocab_size]
+            return W_fused @ compressed_values
+        else:
+            # Multiple tokens: [seq_len, value_rank] -> [seq_len, vocab_size]
+            return compressed_values @ W_fused.T
+    
     def compress_values(self, values: torch.Tensor, profile_name: str, head_idx: int = 0) -> torch.Tensor:
         """
         Backward compatible method for compressing values.
