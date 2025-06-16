@@ -16,7 +16,7 @@ from core.model import LLaMAModelLoader
 from core.compression import LLaMACompressionProfileBuilder
 from core.cache import LLaMAKVCache, StandardKVCache
 from core.data import LLaMADatasetHandler
-from core.inference import CompressedAutoregressiveDecoder
+from core.inference import CompressedAutoRegressiveDecoder
 
 class RealTokenGenerationTest:
     def __init__(self, model_path: str = "/mnt/vstor/CSE_ECSE_GXD234/Meta-Llama-3-8B-Instruct"):
@@ -27,7 +27,9 @@ class RealTokenGenerationTest:
         print(f"📍 Model path: {model_path}")
         
         # Initialize components
-        self.model_loader = LLaMAModelLoader(model_path)
+        from core.config import ModelConfig
+        model_config = ModelConfig(model_path=model_path)
+        self.model_loader = LLaMAModelLoader(model_config)
         from core.config import CompressionConfig
         compression_config = CompressionConfig()
         self.compression_profiles = LLaMACompressionProfileBuilder(self.model_loader, compression_config)

@@ -20,7 +20,9 @@ class LLaMACompressionInference:
         
         # Load real LLaMA model
         if model_loader is None:
-            self.model_loader = LLaMAModelLoader(model_path)
+            from ..config import ModelConfig
+            model_config = ModelConfig(model_path=model_path)
+            self.model_loader = LLaMAModelLoader(model_config)
         else:
             self.model_loader = model_loader
         

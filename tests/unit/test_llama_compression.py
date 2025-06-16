@@ -31,7 +31,7 @@ class LLaMACompressionTestSuite:
         
         # Initialize components
         try:
-            self.inference_pipeline = LLaMACompressionInference(model_path)
+            self.inference_pipeline = LLaMACompressionInference(model_path=model_path)
             print(f"✅ Test suite initialized successfully")
         except Exception as e:
             print(f"❌ Failed to initialize test suite: {e}")

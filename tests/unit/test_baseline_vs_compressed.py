@@ -18,8 +18,8 @@ from core.model import LLaMAModelLoader
 from core.compression import LLaMACompressionProfileBuilder
 from core.data import LLaMADatasetHandler
 from core.inference import LLaMACompressionInference
-from kv_cache_llama import LLaMAKVCache
-from standard_kv_cache import StandardKVCache, StandardAttentionComputation
+from core.cache import LLaMAKVCache, StandardKVCache
+from core.cache.standard_kv_cache import StandardAttentionComputation
 
 class BaselineVsCompressedComparison:
     """

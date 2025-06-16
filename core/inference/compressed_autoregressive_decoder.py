@@ -21,7 +21,9 @@ class CompressedAutoRegressiveDecoder:
         print(f"📍 Model path: {model_path}")
         
         # Load components
-        self.model_loader = LLaMAModelLoader(model_path)
+        from ..config import ModelConfig
+        model_config = ModelConfig(model_path=model_path)
+        self.model_loader = LLaMAModelLoader(model_config)
         from ..config import CompressionConfig
         compression_config = CompressionConfig()
         self.compression_profiles = LLaMACompressionProfileBuilder(self.model_loader, compression_config)
