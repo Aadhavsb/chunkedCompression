@@ -1,5 +1,23 @@
 # 🚀 Usage Guide - LLaMA-3 8B Chunked Compression
 
+## ⚠️ Python, pip, and setuptools Version Requirements
+
+To use `pip install -e .` or `pip install -e ".[all]"` with only a `pyproject.toml` (no `setup.py`/`setup.cfg`), you must have:
+
+- **Python 3.8+** (Python 3.10+ recommended)
+- **pip 21.3+** (pip 25+ recommended)
+- **setuptools 61+** (setuptools 80+ recommended)
+
+If you see errors about editable installs or missing `setup.py`, upgrade pip and setuptools:
+
+```bash
+python3.10 -m pip install --upgrade pip setuptools
+```
+
+Older pip/setuptools do not support editable installs with PEP 660 (pyproject.toml only). On Mac, Homebrew and recent Python distributions usually have new enough versions by default. On Linux/cluster, you may need to upgrade manually.
+
+---
+
 ## 📦 Installation Methods
 
 ### **🎯 Method 1: Package Installation (Recommended)**
@@ -26,7 +44,7 @@ pip install -e ".[all]"         # Everything included
 ./scripts/start_container.sh   # Start container
 
 # Inside container: dependencies already available
-python tests/integration/run_comprehensive_test.py
+python -m tests.integration.run_comprehensive_test
 ```
 
 ### **📋 Method 3: Manual Dependencies**
