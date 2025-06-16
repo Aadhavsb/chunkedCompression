@@ -417,3 +417,7 @@ class LLaMACompressionProfileBuilder(CompressionProfileInterface):
     def get_available_profiles(self) -> List[str]:
         """Get list of available compression profiles."""
         return list(self.profiles.keys())
+    
+    def print_compression_summary(self) -> None:
+        """Print compression summary for all profiles."""
+        self._print_profile_summary()
