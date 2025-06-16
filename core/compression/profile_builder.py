@@ -128,11 +128,12 @@ class LLaMACompressionProfileBuilder(CompressionProfileInterface):
                 self.config.key_compression_rank
             )
             
-            # compression_matrix: [key_rank, hidden_size]
+            # SVD returns:
+            # compression_matrix: [key_rank, head_dim] 
             # reconstruction_matrix: [hidden_size, key_rank]
             # We need A_K: [key_rank, head_dim] and B_K: [head_dim, key_rank]
             
-            A_K = compression_matrix @ W_K_head_T  # [key_rank, head_dim]
+            A_K = compression_matrix  # [key_rank, head_dim]
             B_K = reconstruction_matrix.T  # [head_dim, key_rank]
             
             self.key_compression_matrices.append(A_K)
