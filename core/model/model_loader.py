@@ -295,7 +295,7 @@ class LLaMAModelLoader(ModelLoaderInterface):
         """Get number of layers for backward compatibility."""
         return self.get_model_config().get_num_layers()
     
-    def get_hidden_states(self, input_text: str, max_length: int = 50) -> tuple[torch.Tensor, torch.Tensor]:
+    def get_hidden_states(self, input_text: str, max_length: int = 50) -> Tuple[torch.Tensor, torch.Tensor]:
         """Get hidden states for backward compatibility."""
         if self.model is None:
             raise RuntimeError("Model not loaded. Call load_model() first.")

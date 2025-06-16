@@ -47,6 +47,7 @@ class LLaMACompressionProfileBuilder(CompressionProfileInterface):
         self.num_query_heads = self.model_config.get_num_heads()
         self.num_kv_heads = self.model_config.get_num_key_value_heads()
         self.head_dim = self.model_config.get_head_dim()
+        self.vocab_size = self.model_config.get_vocab_size()
         self.heads_per_kv_head = self.num_query_heads // self.num_kv_heads
         
         print(f"🔧 Initialized compression profile builder:")
@@ -260,7 +261,7 @@ class LLaMACompressionProfileBuilder(CompressionProfileInterface):
             # Multiple tokens: [seq_len, head_dim] -> [seq_len, value_rank]
             return values @ A_V.T
     
-    def compress_keys(self, keys: torch.Tensor, layer_idx: int, head_idx: int = 0) -> torch.Tensor:
+    def compress_keys_with_layer(self, keys: torch.Tensor, layer_idx: int, head_idx: int = 0) -> torch.Tensor:
         """
         Compress key tensors using fixed compression rank.
         
@@ -318,47 +319,6 @@ class LLaMACompressionProfileBuilder(CompressionProfileInterface):
             # Multiple tokens: [seq_len, key_rank] -> [seq_len, head_dim]
             return compressed_keys @ B_K.T
     
-    def get_compression_stats(self, layer_idx: int) -> Dict[str, Any]:
-        """
-        Get compression statistics for all profiles.
-        
-        Args:
-            layer_idx: Layer index (for interface compatibility)
-            
-        Returns:
-            Dictionary containing compression statistics
-        """
-        stats = {}
-        
-        for profile_name, profile in self.profiles.items():
-            value_rank = profile["value_rank"]
-            key_rank = profile["key_rank"]
-            
-            # Calculate parameter counts
-            original_value_params = self.num_kv_heads * self.head_dim * self.model_config.get_hidden_size()
-            original_key_params = self.num_kv_heads * self.head_dim * self.model_config.get_hidden_size()
-            original_output_params = self.model_config.get_hidden_size() * self.model_config.get_hidden_size()
-            
-            compressed_value_params = self.num_query_heads * (value_rank * self.head_dim + self.model_config.get_vocab_size() * value_rank)
-            compressed_key_params = self.num_kv_heads * (key_rank * self.head_dim + self.head_dim * key_rank)
-            
-            # Calculate compression ratios
-            value_compression_ratio = original_value_params / (compressed_value_params - self.num_query_heads * self.model_config.get_vocab_size() * value_rank)
-            key_compression_ratio = original_key_params / compressed_key_params
-            total_compression_ratio = (original_value_params + original_key_params + original_output_params) / (compressed_value_params + compressed_key_params)
-            
-            stats[profile_name] = {
-                "value_rank": value_rank,
-                "key_rank": key_rank,
-                "num_query_heads": self.num_query_heads,
-                "num_kv_heads": self.num_kv_heads,
-                "value_compression_ratio": value_compression_ratio,
-                "key_compression_ratio": key_compression_ratio,
-                "total_compression_ratio": total_compression_ratio,
-                "memory_savings_percent": (1 - 1/total_compression_ratio) * 100
-            }
-        
-        return stats
     
     def validate_profile_shapes(self, layer_idx: int, profile_name: str = None) -> bool:
         """
@@ -421,3 +381,84 @@ class LLaMACompressionProfileBuilder(CompressionProfileInterface):
     def print_compression_summary(self) -> None:
         """Print compression summary for all profiles."""
         self._print_profile_summary()
+    
+    def compress_values(self, values: torch.Tensor, profile_name: str, head_idx: int = 0) -> torch.Tensor:
+        """
+        Backward compatible method for compressing values.
+        
+        Args:
+            values: Value tensor [seq_len, head_dim] or [head_dim]
+            profile_name: Compression profile name
+            head_idx: Attention head index
+            
+        Returns:
+            Compressed values
+        """
+        return self.compress_values_with_profile(values, profile_name, head_idx)
+    
+    def compress_keys(self, keys: torch.Tensor, head_idx: int = 0) -> torch.Tensor:
+        """
+        Backward compatible method for compressing keys.
+        
+        Args:
+            keys: Key tensor [seq_len, head_dim] or [head_dim]  
+            head_idx: Query head index
+            
+        Returns:
+            Compressed keys
+        """
+        if head_idx >= self.num_query_heads:
+            raise ValueError(f"Head index {head_idx} out of range for {self.num_query_heads} heads")
+        
+        # Map query head to corresponding KV head
+        kv_head_idx = head_idx // self.heads_per_kv_head
+        A_K = self.key_compression_matrices[kv_head_idx]  # [key_rank, head_dim]
+        
+        if keys.dim() == 1:
+            # Single token: [head_dim] -> [key_rank]
+            return A_K @ keys
+        else:
+            # Multiple tokens: [seq_len, head_dim] -> [seq_len, key_rank]
+            return keys @ A_K.T
+    
+    def get_compression_stats(self, layer_idx: int = 0) -> Dict[str, Any]:
+        """
+        Get compression statistics for all profiles (backward compatible).
+        
+        Args:
+            layer_idx: Layer index (for interface compatibility, defaults to 0)
+            
+        Returns:
+            Dictionary containing compression statistics
+        """
+        stats = {}
+        
+        for profile_name, profile in self.profiles.items():
+            value_rank = profile["value_rank"]
+            key_rank = profile["key_rank"]
+            
+            # Calculate parameter counts
+            original_value_params = self.num_kv_heads * self.head_dim * self.model_config.get_hidden_size()
+            original_key_params = self.num_kv_heads * self.head_dim * self.model_config.get_hidden_size()
+            original_output_params = self.model_config.get_hidden_size() * self.model_config.get_hidden_size()
+            
+            compressed_value_params = self.num_query_heads * (value_rank * self.head_dim + self.model_config.get_vocab_size() * value_rank)
+            compressed_key_params = self.num_kv_heads * (key_rank * self.head_dim + self.head_dim * key_rank)
+            
+            # Calculate compression ratios
+            value_compression_ratio = original_value_params / (compressed_value_params - self.num_query_heads * self.model_config.get_vocab_size() * value_rank)
+            key_compression_ratio = original_key_params / compressed_key_params
+            total_compression_ratio = (original_value_params + original_key_params + original_output_params) / (compressed_value_params + compressed_key_params)
+            
+            stats[profile_name] = {
+                "value_rank": value_rank,
+                "key_rank": key_rank,
+                "num_query_heads": self.num_query_heads,
+                "num_kv_heads": self.num_kv_heads,
+                "value_compression_ratio": value_compression_ratio,
+                "key_compression_ratio": key_compression_ratio,
+                "total_compression_ratio": total_compression_ratio,
+                "memory_savings_percent": (1 - 1/total_compression_ratio) * 100
+            }
+        
+        return stats
