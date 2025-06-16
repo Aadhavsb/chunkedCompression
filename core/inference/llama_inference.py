@@ -12,14 +12,25 @@ from ..cache import LLaMAKVCache, StandardKVCache
 from ..data import LLaMADatasetHandler
 
 class LLaMACompressionInference:
-    def __init__(self, model_path: str = "/mnt/vstor/CSE_ECSE_GXD234/Meta-Llama-3-8B-Instruct"):
+    def __init__(self, 
+                 model_loader=None, 
+                 profile_builder=None,
+                 model_path: str = "/mnt/vstor/CSE_ECSE_GXD234/Meta-Llama-3-8B-Instruct"):
         print(f"🚀 Initializing LLaMA-3 8B Compression Inference Pipeline")
         
         # Load real LLaMA model
-        self.model_loader = LLaMAModelLoader(model_path)
+        if model_loader is None:
+            self.model_loader = LLaMAModelLoader(model_path)
+        else:
+            self.model_loader = model_loader
         
         # Create compression profiles from real model weights
-        self.compression_profiles = LLaMACompressionProfiles(self.model_loader)
+        if profile_builder is None:
+            from ..config import CompressionConfig
+            compression_config = CompressionConfig()
+            self.compression_profiles = LLaMACompressionProfileBuilder(self.model_loader, compression_config)
+        else:
+            self.compression_profiles = profile_builder
         
         # Create dataset handler
         self.dataset_handler = LLaMADatasetHandler(self.model_loader)

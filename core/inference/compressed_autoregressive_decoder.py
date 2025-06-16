@@ -22,7 +22,9 @@ class CompressedAutoRegressiveDecoder:
         
         # Load components
         self.model_loader = LLaMAModelLoader(model_path)
-        self.compression_profiles = LLaMACompressionProfiles(self.model_loader)
+        from ..config import CompressionConfig
+        compression_config = CompressionConfig()
+        self.compression_profiles = LLaMACompressionProfileBuilder(self.model_loader, compression_config)
         self.dataset_handler = LLaMADatasetHandler(self.model_loader)
         
         # Initialize caches
