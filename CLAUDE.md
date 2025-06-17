@@ -111,8 +111,9 @@ The project includes automation scripts for SLURM cluster environments with Sing
 # - Requests: 2 GPUs, 24 cores, 24GB memory, 2 hours
 # - Returns node assignment (e.g., gpu-node-123)
 
-# 3. SSH to allocated node
+# 3. SSH to allocated node and navigate to project
 ssh gpu-node-123
+cd chunkedCompression
 
 # 4. Start container with GPU support
 ./scripts/start_container.sh

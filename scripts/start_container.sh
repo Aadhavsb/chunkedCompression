@@ -12,6 +12,7 @@
 #
 # Usage:
 #   ssh <gpu-node-name>
+#   cd chunkedCompression
 #   ./scripts/start_container.sh
 #
 # What this script does:
@@ -54,7 +55,8 @@ if [ ! -d "pytorch_sandbox" ]; then
     echo "❌ Error: pytorch_sandbox directory not found!"
     echo ""
     echo "📋 Troubleshooting:"
-    echo "  • Make sure you're in the correct directory"
+    echo "  • Make sure you're in the chunkedCompression directory"
+    echo "  • Run: cd chunkedCompression"
     echo "  • Run setup first: ./scripts/setup.sh"
     echo "  • Check current directory: pwd"
     echo ""

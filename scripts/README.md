@@ -48,6 +48,7 @@ bash scripts/setup.sh
 # For each session
 bash scripts/run.sh          # Note the assigned node
 ssh <gpu-node-name>          # SSH to allocated node
+cd chunkedCompression        # Navigate to project directory
 bash scripts/start_container.sh
 ```
 
@@ -107,8 +108,9 @@ bash scripts/setup.sh
 bash scripts/run.sh
 # Note: gpu-node-123
 
-# 5. SSH to allocated node
+# 5. SSH to allocated node and navigate to project
 ssh gpu-node-123
+cd chunkedCompression
 
 # 6. Start development
 bash scripts/start_container.sh
