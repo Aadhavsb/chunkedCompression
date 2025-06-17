@@ -20,7 +20,7 @@ def test_memory_safe_loading():
     # Check GPU availability
     if not torch.cuda.is_available():
         print("❌ No GPU available. This test requires CUDA.")
-        return False
+        assert False, "No GPU available. This test requires CUDA."
     
     print(f"✅ GPU detected: {torch.cuda.get_device_name()}")
     print(f"💾 GPU memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
@@ -76,14 +76,12 @@ def test_memory_safe_loading():
         loader.cleanup()
         
         print(f"\n🎉 Memory-safe loading test PASSED!")
-        return True
         
     except Exception as e:
         print(f"\n❌ Memory-safe loading test FAILED: {e}")
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"Memory-safe loading test FAILED: {e}"
 
 if __name__ == "__main__":
-    success = test_memory_safe_loading()
-    exit(0 if success else 1)
+    test_memory_safe_loading()
