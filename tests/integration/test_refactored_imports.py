@@ -37,11 +37,10 @@ def test_core_imports():
         memory_stats = memory_manager.get_memory_usage()
         print(f"✅ Memory manager works, found {len(memory_stats)} metrics")
         
-        return True
         
     except Exception as e:
         print(f"❌ Core imports failed: {e}")
-        return False
+        assert False, f"Core imports failed: {e}"
 
 def test_legacy_compatibility():
     """Test that legacy compatibility wrapper can be imported."""
@@ -59,11 +58,10 @@ def test_legacy_compatibility():
         else:
             print("ℹ️  Components not available (expected in environment without torch)")
         
-        return True
         
     except Exception as e:
         print(f"❌ Legacy compatibility failed: {e}")
-        return False
+        assert False, f"Legacy compatibility failed: {e}"
 
 def test_config_functionality():
     """Test configuration functionality."""
@@ -90,11 +88,10 @@ def test_config_functionality():
         assert isinstance(compatibility, dict)
         
         print("✅ Configuration functionality tests passed")
-        return True
         
     except Exception as e:
         print(f"❌ Configuration functionality failed: {e}")
-        return False
+        assert False, f"Configuration functionality failed: {e}"
 
 def test_file_structure():
     """Test that the expected files exist."""
@@ -133,10 +130,9 @@ def test_file_structure():
     
     if missing_files:
         print(f"❌ Missing files: {missing_files}")
-        return False
+        assert False, f"Missing files: {missing_files}"
     else:
         print(f"✅ All {len(expected_files)} expected files found")
-        return True
 
 def main():
     """Run all tests."""
