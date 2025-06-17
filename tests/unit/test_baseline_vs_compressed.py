@@ -14,12 +14,12 @@ import numpy as np
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from llama_model_loader import LLaMAModelLoader
-from profiles_llama import LLaMACompressionProfiles
-from dataset_llama import LLaMADatasetHandler
-from llama_inference import LLaMACompressionInference
-from kv_cache_llama import LLaMAKVCache
-from standard_kv_cache import StandardKVCache, StandardAttentionComputation
+from core.model import LLaMAModelLoader
+from core.compression import LLaMACompressionProfileBuilder
+from core.data import LLaMADatasetHandler
+from core.inference import LLaMACompressionInference
+from core.cache import LLaMAKVCache, StandardKVCache
+from core.cache.standard_kv_cache import StandardAttentionComputation
 
 class BaselineVsCompressedComparison:
     """

@@ -1,0 +1,239 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llama-chunked-compression"
+dynamic = ["version"]
+description = "Production-grade transformer attention compression for LLaMA-3 8B using SVD-based chunked KV cache compression"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "EINSTEIN Lab"},
+]
+maintainers = [
+    {name = "EINSTEIN Lab"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+keywords = [
+    "llama", "compression", "transformer", "attention", "svd", 
+    "kv-cache", "neural-networks", "deep-learning", "pytorch"
+]
+requires-python = ">=3.8"
+
+# Core dependencies
+dependencies = [
+    "torch>=2.0.0",
+    "transformers>=4.30.0",
+    "numpy>=1.21.0",
+    "safetensors>=0.3.0",
+    "tokenizers>=0.13.0",
+    "huggingface-hub>=0.16.0",
+    "protobuf>=3.20.0",
+    "sentencepiece>=0.1.97",
+]
+
+# Optional dependencies for different use cases
+[project.optional-dependencies]
+# Full research environment
+research = [
+    "datasets>=2.0.0",
+    "accelerate>=0.20.0",
+    "jupyter>=1.0.0",
+    "matplotlib>=3.5.0",
+    "seaborn>=0.11.0",
+    "pandas>=1.3.0",
+]
+
+# Development dependencies
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=22.0.0",
+    "isort>=5.10.0",
+    "mypy>=0.991",
+    "flake8>=5.0.0",
+    "pre-commit>=2.20.0",
+]
+
+# Testing dependencies
+test = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-xdist>=2.5.0",  # parallel testing
+    "pytest-benchmark>=4.0.0",  # performance benchmarking  
+]
+
+# Documentation dependencies
+docs = [
+    "sphinx>=5.0.0",
+    "sphinx-rtd-theme>=1.0.0",
+    "myst-parser>=0.18.0",
+]
+
+# Container/cluster dependencies
+cluster = [
+    "datasets>=2.0.0",
+    "accelerate>=0.20.0",
+]
+
+# All optional dependencies
+all = [
+    "llama-chunked-compression[research,dev,test,docs,cluster]"
+]
+
+[project.urls]
+Repository = "https://https://github.com/Aadhavsb/chunkedCompression.git"
+Issues = "https://https://github.com/Aadhavsb/chunkedCompression/issues"
+
+[project.scripts]
+# CLI tools for the compression system
+llama-compress = "core.inference:main"
+llama-benchmark = "tests.integration.run_comprehensive_test:main"
+
+# Setuptools configuration
+[tool.setuptools]
+packages = ["core", "legacy", "tests"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"*" = ["*.md", "*.txt", "*.json"]
+
+[tool.setuptools_scm]
+write_to = "core/_version.py"
+
+# Testing configuration
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--cov=core",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+]
+testpaths = ["tests"]
+filterwarnings = [
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "gpu: marks tests that require GPU",
+    "integration: marks integration tests",
+    "unit: marks unit tests",
+]
+
+# Black code formatting
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+  | legacy
+)/
+'''
+
+# isort import sorting
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["core", "legacy"]
+skip_glob = ["legacy/*"]
+
+# MyPy type checking
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "torch.*",
+    "transformers.*",
+    "datasets.*",
+    "accelerate.*",
+    "safetensors.*",
+]
+ignore_missing_imports = true
+
+# Exclude legacy code from type checking
+[[tool.mypy.overrides]]
+module = "legacy.*"
+ignore_errors = true
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["core"]
+omit = [
+    "*/tests/*",
+    "*/legacy/*",
+    "*/__init__.py",
+    "core/_version.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+# Flake8 linting
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist", 
+    ".eggs",
+    "*.egg-info",
+    ".venv",
+    "legacy"
+]
+per-file-ignores = [
+    "__init__.py:F401",
+]

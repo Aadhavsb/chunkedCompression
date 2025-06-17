@@ -4,22 +4,44 @@ Production-grade compressed attention with real model weights
 """
 import torch
 import torch.nn.functional as F
-from typing import List, Tuple, Dict, Optional
+from typing import List, Dict, Optional
 import time
-from llama_model_loader import LLaMAModelLoader
-from profiles_llama import LLaMACompressionProfiles
-from kv_cache_llama import LLaMAKVCache, StandardKVCache
-from dataset_llama import LLaMADatasetHandler
+from ..model import LLaMAModelLoader
+from ..compression import LLaMACompressionProfileBuilder
+from ..cache import LLaMAKVCache, StandardKVCache
+from ..data import LLaMADatasetHandler
 
 class LLaMACompressionInference:
-    def __init__(self, model_path: str = "/mnt/vstor/CSE_ECSE_GXD234/Meta-Llama-3-8B-Instruct"):
+    def __init__(self, 
+                 model_loader=None, 
+                 profile_builder=None,
+                 model_path: str = "/mnt/vstor/CSE_ECSE_GXD234/Meta-Llama-3-8B-Instruct"):
         print(f"🚀 Initializing LLaMA-3 8B Compression Inference Pipeline")
         
         # Load real LLaMA model
-        self.model_loader = LLaMAModelLoader(model_path)
+        if model_loader is None:
+            from ..config import ModelConfig
+            model_config = ModelConfig(model_path=model_path)
+            self.model_loader = LLaMAModelLoader(model_config)
+            self.model_loader.load_model()  # Auto-load for convenience
+        else:
+            self.model_loader = model_loader
+            # Ensure model is loaded
+            if self.model_loader.model is None:
+                self.model_loader.load_model()
         
         # Create compression profiles from real model weights
-        self.compression_profiles = LLaMACompressionProfiles(self.model_loader)
+        if profile_builder is None:
+            from ..config import CompressionConfig
+            compression_config = CompressionConfig()
+            self.compression_profiles = LLaMACompressionProfileBuilder(self.model_loader, compression_config)
+            # Auto-build profiles for last layer (-1) for convenience
+            self.compression_profiles.build_compression_profiles(layer_idx=-1)
+        else:
+            self.compression_profiles = profile_builder
+            # Ensure profiles are built if not already
+            if not self.compression_profiles.profiles:
+                self.compression_profiles.build_compression_profiles(layer_idx=-1)
         
         # Create dataset handler
         self.dataset_handler = LLaMADatasetHandler(self.model_loader)
@@ -308,11 +330,14 @@ class LLaMACompressionInference:
             # Standard attention  
             standard_output = self.standard_attention_forward(query_state, 0, 0)
             
-            # Calculate metrics
-            output_mse = F.mse_loss(compressed_output, standard_output).item()
+            # Calculate metrics (convert to float32 for MSE computation)
+            compressed_float = compressed_output.float() if compressed_output.dtype in [torch.bfloat16, torch.float16] else compressed_output
+            standard_float = standard_output.float() if standard_output.dtype in [torch.bfloat16, torch.float16] else standard_output
+            
+            output_mse = F.mse_loss(compressed_float, standard_float).item()
             output_cosine_sim = F.cosine_similarity(
-                compressed_output.unsqueeze(0), 
-                standard_output.unsqueeze(0)
+                compressed_float.unsqueeze(0), 
+                standard_float.unsqueeze(0)
             ).item()
             
             # Get ground truth logits for perplexity calculation
@@ -400,3 +425,35 @@ class LLaMACompressionInference:
         # Reset performance stats
         for key in self.inference_stats:
             self.inference_stats[key] = 0.0
+
+
+def main():
+    """CLI entry point for LLaMA compression inference"""
+    print("🚀 Starting LLaMA-3 8B Compression Inference...")
+    
+    try:
+        # Initialize inference pipeline
+        inference = LLaMACompressionInference()
+        
+        # Run compression benchmark
+        results = inference.run_compression_benchmark()
+        
+        # Display results
+        print("\n📊 Compression Results:")
+        metrics = results['aggregate_metrics']
+        print(f"  Memory savings: {metrics['avg_memory_savings']:.2%}")
+        print(f"  Cosine similarity: {metrics['avg_cosine_similarity']:.4f}")
+        print(f"  MSE: {metrics['avg_mse']:.6f}")
+        
+        print("✅ Compression benchmark completed successfully!")
+        
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return 1
+    
+    return 0
+
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(main())

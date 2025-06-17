@@ -197,6 +197,35 @@ class StandardKVCache:
             "total_entries": total_entries
         }
     
+    def store_kv(self, layer_idx: int, head_idx: int, keys: torch.Tensor, 
+                 values: torch.Tensor, token_idx: int):
+        """
+        Store key-value pairs (test compatibility method).
+        
+        Args:
+            layer_idx: Transformer layer index
+            head_idx: Attention head index 
+            keys: Key tensor [head_dim] or [seq_len, head_dim]
+            values: Value tensor [head_dim] or [seq_len, head_dim]
+            token_idx: Token position index
+        """
+        if keys.dim() == 1:
+            # Single token
+            self.append(layer_idx, head_idx, token_idx, keys, values)
+        else:
+            # Multiple tokens
+            for i in range(keys.shape[0]):
+                self.append(layer_idx, head_idx, token_idx + i, keys[i], values[i])
+    
+    def retrieve_kv(self, layer_idx: int, head_idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Retrieve all key-value pairs (test compatibility method).
+        
+        Returns:
+            Tuple of (keys, values) each [seq_len, head_dim]
+        """
+        return self.get_all_kv(layer_idx, head_idx)
+
     def get_cache_efficiency_stats(self) -> Dict[str, float]:
         """Get cache performance statistics"""
         total_requests = self.cache_stats["cache_hits"] + self.cache_stats["cache_misses"]

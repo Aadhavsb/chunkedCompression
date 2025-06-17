@@ -15,11 +15,11 @@ from datetime import datetime
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from llama_model_loader import LLaMAModelLoader
-from profiles_llama import LLaMACompressionProfiles  
-from dataset_llama import LLaMADatasetHandler
-from llama_inference import LLaMACompressionInference
-from kv_cache_llama import LLaMAKVCache, StandardKVCache
+from core.model import LLaMAModelLoader
+from core.compression import LLaMACompressionProfileBuilder
+from core.data import LLaMADatasetHandler
+from core.inference import LLaMACompressionInference
+from core.cache import LLaMAKVCache, StandardKVCache
 
 class KVCacheComparisonSuite:
     def __init__(self, model_path: str = "/mnt/vstor/CSE_ECSE_GXD234/Meta-Llama-3-8B-Instruct"):
@@ -32,8 +32,13 @@ class KVCacheComparisonSuite:
         print(f"📍 Model path: {model_path}")
         
         # Initialize components
-        self.model_loader = LLaMAModelLoader(model_path)
-        self.compression_profiles = LLaMACompressionProfiles(self.model_loader)
+        from core.config import ModelConfig
+        model_config = ModelConfig(model_path=model_path)
+        self.model_loader = LLaMAModelLoader(model_config)
+        self.model_loader.load_model()  # Auto-load for convenience
+        from core.config import CompressionConfig
+        compression_config = CompressionConfig()
+        self.compression_profiles = LLaMACompressionProfileBuilder(self.model_loader, compression_config)
         self.dataset_handler = LLaMADatasetHandler(self.model_loader)
         
         # Initialize both cache types

@@ -6,18 +6,23 @@ import torch
 import torch.nn.functional as F
 from typing import List, Tuple, Dict, Optional
 import time
-from llama_model_loader import LLaMAModelLoader
-from profiles_llama import LLaMACompressionProfiles
-from kv_cache_llama import LLaMAKVCache, StandardKVCache
-from dataset_llama import LLaMADatasetHandler
+from ..model import LLaMAModelLoader
+from ..compression import LLaMACompressionProfileBuilder
+from ..cache import LLaMAKVCache, StandardKVCache
+from ..data import LLaMADatasetHandler
 
 class LLaMAFullForwardInference:
     def __init__(self, model_path: str = "/mnt/vstor/CSE_ECSE_GXD234/Meta-Llama-3-8B-Instruct"):
         print(f"🚀 Initializing LLaMA-3 8B FULL Forward Pass Pipeline")
         
         # Load real LLaMA model
-        self.model_loader = LLaMAModelLoader(model_path)
-        self.compression_profiles = LLaMACompressionProfiles(self.model_loader)
+        from ..config import ModelConfig
+        model_config = ModelConfig(model_path=model_path)
+        self.model_loader = LLaMAModelLoader(model_config)
+        self.model_loader.load_model()  # Auto-load for convenience
+        from ..config import CompressionConfig
+        compression_config = CompressionConfig()
+        self.compression_profiles = LLaMACompressionProfileBuilder(self.model_loader, compression_config)
         self.dataset_handler = LLaMADatasetHandler(self.model_loader)
         
         # Initialize caches

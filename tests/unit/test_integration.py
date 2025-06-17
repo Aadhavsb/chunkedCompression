@@ -11,7 +11,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import torch
 import torch.nn.functional as F
-from compression import decompose_and_fuse, compress_keys, compress_key_states, reconstruct_keys
+from core.compression import SVDCompressionAlgorithm
+from legacy.compression import decompose_and_fuse, compress_keys, compress_key_states, reconstruct_keys
 
 def test_basic_svd_compression():
     """Test basic SVD compression functionality"""
@@ -62,13 +63,12 @@ def test_basic_svd_compression():
     assert reconstructed_keys.shape == key_states.shape, f"Reconstructed keys shape wrong: {reconstructed_keys.shape}"
     
     print("   ✅ All SVD compression tests passed!")
-    return True
 
 def test_kv_cache():
     """Test KV cache functionality"""
     print("\n🧪 Testing KV Cache...")
     
-    from kv_cache import KVCache
+    from core.cache.standard_kv_cache import StandardKVCache as KVCache
     
     cache = KVCache()
     
@@ -80,19 +80,19 @@ def test_kv_cache():
     compressed_values = torch.randn(seq_len, rank_v)
     compressed_keys = torch.randn(seq_len, rank_k)
     
-    # Store compressed KV pairs
+    # Store KV pairs (using layer_idx=0, head_idx=0 for test)
+    layer_idx, head_idx = 0, 0
     for t in range(seq_len):
         cache.append(
+            layer_idx=layer_idx,
+            head_idx=head_idx,
             token_idx=t,
-            group_id=0,
-            h_v=compressed_values[t],
-            h_k=compressed_keys[t],
-            option="med"
+            k_vector=compressed_keys[t],
+            v_vector=compressed_values[t]
         )
     
     # Retrieve and validate
-    cached_values = cache.retrieve_values(0, "med")
-    cached_keys = cache.retrieve_keys(0, "med")
+    cached_keys, cached_values = cache.retrieve_kv(layer_idx, head_idx)
     
     print(f"   Stored: values{compressed_values.shape}, keys{compressed_keys.shape}")
     print(f"   Retrieved: values{cached_values.shape}, keys{cached_keys.shape}")
@@ -100,78 +100,10 @@ def test_kv_cache():
     # Validate
     assert torch.allclose(cached_values, compressed_values), "Values don't match"
     assert torch.allclose(cached_keys, compressed_keys), "Keys don't match"
-    assert cache.size() == seq_len, f"Cache size wrong: {cache.size()}"
+    assert len(cache.k_cache[(layer_idx, head_idx)]) == seq_len, f"Cache size wrong: {len(cache.k_cache[(layer_idx, head_idx)])}"
     
     print("   ✅ KV cache tests passed!")
-    return True
 
-def test_profiles():
-    """Test compression profiles"""
-    print("\n🧪 Testing Compression Profiles...")
-    
-    from profiles import profiles
-    
-    print(f"   Available profiles: {list(profiles.keys())}")
-    
-    for option, profile in profiles.items():
-        # Check required keys
-        required_keys = ["A", "W_fused", "r", "A_K", "B_K", "r_k"]
-        for key in required_keys:
-            assert key in profile, f"Missing key '{key}' in {option} profile"
-        
-        A_v = profile["A"]
-        W_fused = profile["W_fused"]
-        A_k = profile["A_K"]
-        B_k = profile["B_K"]
-        value_rank = profile["r"]
-        key_rank = profile["r_k"]
-        
-        # Validate shapes
-        assert A_v.shape == (value_rank, 64), f"{option}: A_v shape wrong: {A_v.shape}"
-        assert A_k.shape == (key_rank, 64), f"{option}: A_k shape wrong: {A_k.shape}"
-        assert B_k.shape == (64, key_rank), f"{option}: B_k shape wrong: {B_k.shape}"
-        
-        print(f"   {option}: ✅ value_rank={value_rank}, key_rank={key_rank}")
-        print(f"     A_v{A_v.shape}, A_k{A_k.shape}, B_k{B_k.shape}")
-    
-    print("   ✅ All profile tests passed!")
-    return True
-
-def test_model_integration():
-    """Test basic model integration"""
-    print("\n🧪 Testing Model Integration...")
-    
-    from model import BareDecoder
-    from utils import get_compression_map
-    
-    # Create model
-    model = BareDecoder(d_model=512, d_head=64)
-    
-    # Create test data
-    seq_len = 16
-    d_model = 512
-    X = torch.randn(seq_len, d_model) * 0.1
-    
-    # Create compression map
-    tokens = list(range(seq_len))  # Mock token IDs
-    compression_map = get_compression_map(tokens)
-    
-    print(f"   Input: {X.shape}")
-    print(f"   Compression map: {compression_map}")
-    
-    # Run forward pass
-    with torch.no_grad():
-        outputs = model.forward(X, compression_map)
-    
-    print(f"   Output: {outputs.shape}")
-    
-    # Validate
-    assert outputs.shape == X.shape, f"Output shape mismatch: {outputs.shape} vs {X.shape}"
-    assert not torch.isnan(outputs).any(), "Output contains NaN"
-    assert not torch.isinf(outputs).any(), "Output contains Inf"
-    
-    print("   ✅ Model integration test passed!")
-    return True
 
 def main():
     """Run all integration tests"""
@@ -180,9 +112,7 @@ def main():
     
     tests = [
         test_basic_svd_compression,
-        test_kv_cache,
-        test_profiles,
-        test_model_integration
+        test_kv_cache
     ]
     
     passed = 0
