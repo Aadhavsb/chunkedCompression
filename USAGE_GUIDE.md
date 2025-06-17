@@ -43,8 +43,10 @@ pip install -e ".[all]"         # Everything included
 # SSH to allocated node, then:
 ./scripts/start_container.sh   # Start container
 
-# Inside container: dependencies already available
-python -m tests.integration.run_comprehensive_test
+# Inside container: install dependencies
+pip install -r requirements.txt
+# OR for development setup:
+pip install -e ".[dev]"
 ```
 
 ### **📋 Method 3: Manual Dependencies**
@@ -295,6 +297,7 @@ python tests/unit/test_llama_compression.py
 # Container workflow  
 ./scripts/setup.sh && ./scripts/run.sh
 # (SSH to node) && ./scripts/start_container.sh
+# pip install -r requirements.txt
 ```
 
 ### **📊 Key Files**

@@ -112,6 +112,11 @@ ssh gpu-node-123
 
 # 6. Start development
 bash scripts/start_container.sh
+
+# 7. Install dependencies inside container
+pip install -r requirements.txt
+# OR for development setup:
+pip install -e ".[dev]"
 ```
 
 ## 📋 Script Details
