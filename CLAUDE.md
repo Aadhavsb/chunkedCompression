@@ -119,6 +119,11 @@ ssh gpu-node-123
 # - Loads Singularity module on compute node
 # - Starts container with --nv (NVIDIA support)
 # - Drops you into interactive shell
+
+# 5. Install dependencies inside container
+pip install -r requirements.txt
+# OR for modern development setup:
+pip install -e ".[dev]"        # Development tools + testing
 ```
 
 ### **🛠️ Development & Utility Scripts**
