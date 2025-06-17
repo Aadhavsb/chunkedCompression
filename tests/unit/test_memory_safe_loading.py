@@ -7,9 +7,9 @@ import sys
 import os
 
 # Add current directory to path
-sys.path.insert(0, '/home/asb269/chunkedCompression')
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from llama_loader import LLaMA3Loader
+from core.model.llama_loader import LLaMA3Loader
 import torch
 
 def test_memory_safe_loading():
