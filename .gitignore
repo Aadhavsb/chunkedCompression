@@ -117,3 +117,4 @@ test_results/
 logs/
 checkpoints/
 core/_version.py
+benchmark_results/

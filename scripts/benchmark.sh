@@ -30,8 +30,8 @@ PROFILES="low,med,high"
 LAYERS="0,15,31"
 ITERATIONS=3
 OUTPUT_DIR="benchmark_results"
-ENABLE_MONITORING=false
-COMPARE_BASELINE=false
+ENABLE_MONITORING=False
+COMPARE_BASELINE=False
 EXPORT_FORMAT="json"
 
 # Parse command line arguments
