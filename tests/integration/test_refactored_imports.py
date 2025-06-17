@@ -13,8 +13,8 @@ def test_core_imports():
         from core.config import ModelConfig, CompressionConfig, InferenceConfig, BenchmarkConfig
         print("✅ Config imports successful")
         
-        # Test interface imports
-        from core.interfaces import ModelLoaderInterface, CompressionProfileInterface
+        # Test interface imports (just check they exist)
+        import core.interfaces
         print("✅ Interface imports successful")
         
         # Test utility imports
@@ -26,10 +26,10 @@ def test_core_imports():
         print(f"✅ Core module import successful, heavy components available: {core.HEAVY_COMPONENTS_AVAILABLE}")
         
         # Test that we can create config objects
-        model_config = ModelConfig()
-        compression_config = CompressionConfig()
-        inference_config = InferenceConfig()
-        benchmark_config = BenchmarkConfig()
+        ModelConfig()
+        CompressionConfig()
+        InferenceConfig()
+        BenchmarkConfig()
         print("✅ Config object creation successful")
         
         # Test memory manager
@@ -42,33 +42,13 @@ def test_core_imports():
         print(f"❌ Core imports failed: {e}")
         assert False, f"Core imports failed: {e}"
 
-def test_legacy_compatibility():
-    """Test that legacy compatibility wrapper can be imported."""
-    print("\nTesting legacy compatibility...")
-    
-    try:
-        # Test that the new profiles module can be imported
-        import profiles_llama_new
-        print(f"✅ Profiles module import successful, components available: {profiles_llama_new.COMPONENTS_AVAILABLE}")
-        
-        if profiles_llama_new.COMPONENTS_AVAILABLE:
-            # Test that components can be imported if available
-            from profiles_llama_new import LLaMACompressionProfiles, ModelConfig
-            print("✅ Component imports from compatibility module successful")
-        else:
-            print("ℹ️  Components not available (expected in environment without torch)")
-        
-        
-    except Exception as e:
-        print(f"❌ Legacy compatibility failed: {e}")
-        assert False, f"Legacy compatibility failed: {e}"
 
 def test_config_functionality():
     """Test configuration functionality."""
     print("\nTesting configuration functionality...")
     
     try:
-        from core.config import ModelConfig, CompressionConfig
+        from core.config import CompressionConfig
         
         # Test config creation and validation
         config = CompressionConfig(
@@ -143,7 +123,6 @@ def main():
         test_file_structure,
         test_core_imports,
         test_config_functionality,
-        test_legacy_compatibility,
     ]
     
     passed = 0

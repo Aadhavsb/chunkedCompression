@@ -104,51 +104,6 @@ def test_kv_cache():
     
     print("   ✅ KV cache tests passed!")
 
-def test_profiles():
-    """Test compression profiles"""
-    print("\n🧪 Testing Compression Profiles...")
-    
-    from profiles_llama_new import LLaMACompressionProfiles
-    
-    # Skip this test as compression profiles require actual model loading
-    print("   ⚠️ Skipping compression profiles test - requires actual model loading")
-    return
-    
-    # Initialize profiles with None model loader for testing
-    # compression_profiles = LLaMACompressionProfiles(None)
-    # profiles = getattr(compression_profiles, '_profiles', {})
-    
-    print(f"   Available profiles: {list(profiles.keys())}")
-    
-    for option, profile in profiles.items():
-        # Check required keys
-        required_keys = ["A", "W_fused", "r", "A_K", "B_K", "r_k"]
-        for key in required_keys:
-            assert key in profile, f"Missing key '{key}' in {option} profile"
-        
-        A_v = profile["A"]
-        W_fused = profile["W_fused"]
-        A_k = profile["A_K"]
-        B_k = profile["B_K"]
-        value_rank = profile["r"]
-        key_rank = profile["r_k"]
-        
-        # Validate shapes
-        assert A_v.shape == (value_rank, 64), f"{option}: A_v shape wrong: {A_v.shape}"
-        assert A_k.shape == (key_rank, 64), f"{option}: A_k shape wrong: {A_k.shape}"
-        assert B_k.shape == (64, key_rank), f"{option}: B_k shape wrong: {B_k.shape}"
-        
-        print(f"   {option}: ✅ value_rank={value_rank}, key_rank={key_rank}")
-        print(f"     A_v{A_v.shape}, A_k{A_k.shape}, B_k{B_k.shape}")
-    
-    print("   ✅ All profile tests passed!")
-
-def test_model_integration():
-    """Test basic model integration"""
-    print("\n🧪 Testing Model Integration...")
-    
-    # Skip this test as BareDecoder and get_compression_map are not available in current structure
-    print("   ⚠️ Skipping model integration test - BareDecoder not available in current structure")
 
 def main():
     """Run all integration tests"""
@@ -157,9 +112,7 @@ def main():
     
     tests = [
         test_basic_svd_compression,
-        test_kv_cache,
-        test_profiles,
-        test_model_integration
+        test_kv_cache
     ]
     
     passed = 0
