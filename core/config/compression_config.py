@@ -18,7 +18,7 @@ class CompressionConfig:
     })
     
     # Key compression configuration
-    key_compression_rank: int = 128
+    key_compression_rank: int = 32
     
     # Compression strategy
     compression_strategy: str = "adaptive"  # "adaptive", "fixed", "dynamic"

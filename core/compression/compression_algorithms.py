@@ -84,7 +84,7 @@ class SVDCompressionAlgorithm(CompressionAlgorithmInterface):
         # Create compression and reconstruction matrices
         # For compressing: input -> compressed: compression_matrix @ input
         # For reconstructing: compressed -> output: U @ diag(S) @ compressed
-        compression_matrix = (S_truncated.unsqueeze(0) * V_truncated.T)  # [actual_rank, output_dim]
+        compression_matrix = (S_truncated.unsqueeze(1) * V_truncated.T)  # [actual_rank, output_dim]
         reconstruction_matrix = U_truncated  # [input_dim, actual_rank]
         
         # Convert back to original dtype
