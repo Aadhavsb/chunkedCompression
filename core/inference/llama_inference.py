@@ -280,7 +280,7 @@ class LLaMACompressionInference:
     
     def run_compression_benchmark(self, 
                                 texts: Optional[List[str]] = None,
-                                max_length: int = 128) -> Dict[str, any]:  # Reduced from 256 to 128
+                                max_length: int = 256) -> Dict[str, any]:
         """
         Run comprehensive benchmark comparing compressed vs standard attention
         
@@ -294,19 +294,7 @@ class LLaMACompressionInference:
         print(f"\n🏁 Running LLaMA-3 8B Compression Benchmark")
         print(f"=" * 60)
         
-        # Clear GPU cache first
-        import torch
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-        
-        # Use smaller batch for memory efficiency
-        if texts is None:
-            texts = ["The transformer architecture has revolutionized AI.", 
-                    "Attention mechanisms allow models to focus on relevant information."]
-        else:
-            texts = texts[:2]  # Limit to 2 texts to save memory
-        
-        # Get real hidden states with reduced max_length
+        # Get real hidden states
         hidden_states_list, input_ids_list = self.dataset_handler.get_real_hidden_states_batch(
             texts, max_length
         )

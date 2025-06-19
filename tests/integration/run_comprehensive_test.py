@@ -19,19 +19,22 @@ except ImportError as e:
     print("🔍 Python path:", sys.path)
     sys.exit(1)
 
-def run_benchmark_test():
-    """Run benchmark using the inference pipeline"""
+def run_benchmark_test(existing_pipeline=None):
+    """Run benchmark using the inference pipeline - reuse existing to avoid OOM"""
     print("🏁 STARTING LLAMA-3 8B BENCHMARK TEST")
     print("="*60)
     
     try:
-        from core.inference import LLaMACompressionInference
-        
-        # Initialize the inference pipeline  
-        inference = LLaMACompressionInference()
+        if existing_pipeline:
+            print("🔄 Reusing existing pipeline to avoid memory issues...")
+            inference = existing_pipeline
+        else:
+            print("🚀 Creating new pipeline...")
+            from core.inference import LLaMACompressionInference
+            inference = LLaMACompressionInference()
         
         print("🔄 Running compression benchmark with real LLaMA-3 8B model...")
-        benchmark_results = inference.run_compression_benchmark()
+        benchmark_results = inference.run_compression_benchmark(max_length=128)  # Smaller to save memory
         
         # Extract and display key metrics
         if 'aggregate_metrics' in benchmark_results:
@@ -117,12 +120,6 @@ def main():
     print("\n5️⃣ Testing End-to-End Inference...")
     pipeline_results = tester.test_end_to_end_inference()
     
-    # Clear GPU cache before benchmark to free memory
-    import torch
-    if torch.cuda.is_available():
-        torch.cuda.empty_cache()
-        print("🧹 Cleared GPU cache before benchmark")
-    
     # Save comprehensive results
     comprehensive_results = {
         'model_loading': model_results,
@@ -141,25 +138,15 @@ def main():
             total = results['total']
             print(f"   {test_name}: {passed}/{total} ({success_rate:.1f}%)")
     
-    # Run additional benchmark using EXISTING pipeline to avoid OOM
-    print("\n" + "🏁" * 20)
-    print("🏁 STARTING LLAMA-3 8B BENCHMARK TEST")
-    print("="*60)
+    # Clean up GPU memory before benchmark
+    import torch
+    torch.cuda.empty_cache()
+    print("\n🧹 Cleared GPU cache before benchmark...")
     
-    try:
-        # Reuse the existing pipeline from the test suite to avoid loading model twice
-        benchmark_results = tester.inference_pipeline.run_compression_benchmark(
-            texts=None,  # Use default texts
-            max_length=256
-        )
-        print_benchmark_summary(benchmark_results)
-    except Exception as e:
-        print(f"❌ Benchmark failed: {e}")
-        print("🔄 Benchmark skipped due to memory constraints...")
-        benchmark_results = {
-            "error": str(e),
-            "message": "Benchmark skipped - core tests completed successfully"
-        }
+    # Run additional benchmark using existing pipeline to avoid OOM
+    print("\n" + "🏁" * 20)
+    benchmark_results = run_benchmark_test(existing_pipeline=tester.inference_pipeline)
+    print_benchmark_summary(benchmark_results)
     
     print("\n" + "="*70)
     print("🎉 ALL TESTS COMPLETED SUCCESSFULLY!")
