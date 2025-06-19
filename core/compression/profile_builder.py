@@ -267,6 +267,9 @@ class LLaMACompressionProfileBuilder(CompressionProfileInterface):
         
         A_V = self.profiles[profile_name]["A_V"][head_idx]  # [value_rank, head_dim]
         
+        # Ensure compression matrix is on same device as input
+        A_V = A_V.to(values.device)
+        
         if values.dim() == 1:
             # Single token: [head_dim] -> [value_rank]
             return A_V @ values
@@ -292,6 +295,9 @@ class LLaMACompressionProfileBuilder(CompressionProfileInterface):
         # Map query head to corresponding KV head
         kv_head_idx = head_idx // self.heads_per_kv_head
         A_K = self.key_compression_matrices[kv_head_idx]  # [key_rank, head_dim]
+        
+        # Ensure compression matrix is on same device as input
+        A_K = A_K.to(keys.device)
         
         if keys.dim() == 1:
             # Single token: [head_dim] -> [key_rank]
@@ -416,6 +422,9 @@ class LLaMACompressionProfileBuilder(CompressionProfileInterface):
         # Get fused projection matrix
         W_fused = self.profiles[profile_name]["W_fused"][head_idx]  # [vocab_size, value_rank]
         
+        # Ensure fused matrix is on same device as input
+        W_fused = W_fused.to(compressed_values.device)
+        
         if compressed_values.dim() == 1:
             # Single token: [value_rank] -> [vocab_size]
             return W_fused @ compressed_values
@@ -454,6 +463,9 @@ class LLaMACompressionProfileBuilder(CompressionProfileInterface):
         # Map query head to corresponding KV head
         kv_head_idx = head_idx // self.heads_per_kv_head
         A_K = self.key_compression_matrices[kv_head_idx]  # [key_rank, head_dim]
+        
+        # Ensure compression matrix is on same device as input
+        A_K = A_K.to(keys.device)
         
         if keys.dim() == 1:
             # Single token: [head_dim] -> [key_rank]
