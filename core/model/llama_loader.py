@@ -30,12 +30,26 @@ class LLaMA3Loader:
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
 
         print(f"🦙 Loading model from {self.model_path} onto GPUs...")
+        # FORCE all parameters to be ACTUAL tensors, no meta tensors
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_path,
             torch_dtype=self.dtype,
-            device_map="auto"   # CRITICAL: safe cluster load
+            device_map={"": 0},  # Force ALL parameters to GPU 0 - NO META TENSORS
+            low_cpu_mem_usage=False,  # Disable CPU offloading
+            offload_folder=None,      # No disk offloading
+            load_in_8bit=False,       # No quantization that creates meta tensors
+            load_in_4bit=False,       # No quantization that creates meta tensors
         )
-        print("✅ Model fully loaded into GPU memory.")
+        
+        # Ensure ALL parameters are materialized on GPU
+        for name, param in self.model.named_parameters():
+            if param.is_meta:
+                raise RuntimeError(f"CRITICAL: Parameter {name} is meta tensor - FORBIDDEN!")
+            if param.device.type != "cuda":
+                print(f"WARNING: Moving {name} from {param.device} to GPU")
+                param.data = param.data.cuda()
+        
+        print("✅ Model fully loaded into GPU memory - NO META TENSORS.")
         return self.model, self.tokenizer
 
     def get_model_info(self):

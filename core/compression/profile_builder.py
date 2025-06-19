@@ -145,7 +145,9 @@ class LLaMACompressionProfileBuilder(CompressionProfileInterface):
             # Convert to float32 for pinverse (bfloat16 not supported)
             original_dtype = A_K.dtype
             A_K_float = A_K.float() if A_K.dtype in [torch.bfloat16, torch.float16] else A_K
-            B_K = torch.pinverse(A_K_float).T.to(original_dtype)  # [head_dim, key_rank]
+            # B_K should be [head_dim, key_rank] for proper reconstruction
+            # pinverse(A_K) gives [head_dim, key_rank], no transpose needed
+            B_K = torch.pinverse(A_K_float).to(original_dtype)  # [head_dim, key_rank]
             
             self.key_compression_matrices.append(A_K)
             self.key_reconstruction_matrices.append(B_K)

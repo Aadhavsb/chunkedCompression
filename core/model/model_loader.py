@@ -104,19 +104,32 @@ class LLaMAModelLoader(ModelLoaderInterface):
             self._load_with_transformers()
     
     def _load_with_transformers(self) -> None:
-        """Fallback to standard transformers loading."""
+        """Fallback to standard transformers loading - NO META TENSORS."""
         with self.memory_manager.managed_computation():
             self.model = AutoModelForCausalLM.from_pretrained(
                 self.config.model_path,
                 torch_dtype=self.config.get_dtype_config(),
-                device_map=self.device if self.device.type == "cuda" else None,
-                low_cpu_mem_usage=self.config.low_memory_mode,
+                device_map={"": 0} if self.device.type == "cuda" else None,  # FORCE GPU 0 - NO META
+                low_cpu_mem_usage=False,  # Disable CPU offloading
                 trust_remote_code=self.config.trust_remote_code,
                 use_auth_token=self.config.use_auth_token,
                 revision=self.config.revision,
-                max_memory=self.config.max_memory,
-                offload_folder=self.config.offload_folder,
+                max_memory=None,          # No memory limits that cause meta tensors
+                offload_folder=None,      # No disk offloading
+                load_in_8bit=False,       # No quantization
+                load_in_4bit=False,       # No quantization
             )
+            
+            # Verify NO meta tensors exist
+            meta_tensors = []
+            for name, param in self.model.named_parameters():
+                if param.is_meta:
+                    meta_tensors.append(name)
+            
+            if meta_tensors:
+                raise RuntimeError(f"CRITICAL: Found {len(meta_tensors)} meta tensors: {meta_tensors[:5]}... - FORBIDDEN!")
+            
+            print("✅ Model loaded with transformers - NO META TENSORS")
             
             self.tokenizer = AutoTokenizer.from_pretrained(
                 self.config.model_path,
@@ -175,11 +188,21 @@ class LLaMAModelLoader(ModelLoaderInterface):
         layer = self.model.model.layers[layer_idx]
         attention = layer.self_attn
         
-        # Extract projection weights
-        W_Q = attention.q_proj.weight.data
-        W_K = attention.k_proj.weight.data
-        W_V = attention.v_proj.weight.data
-        W_O = attention.o_proj.weight.data
+        # Extract projection weights with meta tensor handling
+        def safe_extract_weight(module):
+            """Safely extract weight tensor, handling meta tensors."""
+            weight = module.weight
+            if weight.device.type == 'meta':
+                # Force materialization of meta tensor
+                print(f"   Warning: Materializing meta tensor for {module.__class__.__name__}")
+                # Move to CPU first, then to target device
+                weight = weight.to('cpu')
+            return weight.data
+        
+        W_Q = safe_extract_weight(attention.q_proj)
+        W_K = safe_extract_weight(attention.k_proj)
+        W_V = safe_extract_weight(attention.v_proj)
+        W_O = safe_extract_weight(attention.o_proj)
         
         print(f"🔍 Extracted attention weights from layer {layer_idx}:")
         print(f"   W_Q: {W_Q.shape} (query heads: {self.model_config_wrapper.get_num_heads()})")
@@ -199,7 +222,13 @@ class LLaMAModelLoader(ModelLoaderInterface):
         if self.model is None:
             raise RuntimeError("Model not loaded. Call load_model() first.")
         
-        W_LM_HEAD = self.model.lm_head.weight.data
+        # Handle meta tensor for language model head
+        lm_head_weight = self.model.lm_head.weight
+        if lm_head_weight.device.type == 'meta':
+            print(f"   Warning: Materializing meta tensor for lm_head")
+            lm_head_weight = lm_head_weight.to('cpu')
+        
+        W_LM_HEAD = lm_head_weight.data
         print(f"🎯 Extracted language model head: {W_LM_HEAD.shape}")
         return W_LM_HEAD
     
