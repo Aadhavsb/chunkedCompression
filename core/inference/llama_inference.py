@@ -185,7 +185,10 @@ class LLaMACompressionInference:
         
         # Get all cached compression groups
         cache_groups = self.compressed_cache.get_cache_groups()
-        attention_output = torch.zeros(self.hidden_size, dtype=query.dtype, device=query.device)
+        
+        # For multi-GPU setups, use the device of the current layer
+        target_device = query.device
+        attention_output = torch.zeros(self.hidden_size, dtype=query.dtype, device=target_device)
         
         for group_layer_idx, group_head_idx, profile_name in cache_groups:
             if group_layer_idx != layer_idx or group_head_idx != head_idx:
@@ -219,6 +222,9 @@ class LLaMACompressionInference:
             if group_output.shape[0] == self.vocab_size:
                 # Map from vocab space back to hidden space (approximate)
                 lm_head_weight = self.model_loader.get_language_model_head()
+                # Ensure all tensors are on the target device for multi-GPU compatibility
+                group_output = group_output.to(target_device)
+                lm_head_weight = lm_head_weight.to(target_device)
                 hidden_output = group_output @ lm_head_weight / self.vocab_size  # [hidden_size]
                 attention_output += hidden_output
         
