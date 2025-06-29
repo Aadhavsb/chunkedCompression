@@ -83,18 +83,19 @@ class StandardDatasetHandler:
             else:
                 text_field = "text"
             
-            # Concatenate all text
+            # Concatenate all text (don't limit by max_samples here)
             all_text = ""
             sample_count = 0
             
             for item in dataset:
-                if max_samples and sample_count >= max_samples:
-                    break
-                    
                 text = item[text_field].strip()
                 if text:  # Skip empty lines
                     all_text += text + " "
                     sample_count += 1
+                    
+                # Stop after reasonable amount of text to avoid memory issues
+                if len(all_text) > 10_000_000:  # 10MB of text should be plenty
+                    break
             
             print(f"   Loaded {sample_count} text samples")
             print(f"   Total characters: {len(all_text):,}")
@@ -115,6 +116,9 @@ class StandardDatasetHandler:
             num_sequences = 0
             
             for i in range(0, len(input_ids) - effective_seq_len + 1, stride):
+                if max_samples and num_sequences >= max_samples:
+                    break
+                    
                 sequence = input_ids[i:i + effective_seq_len]
                 if len(sequence) == effective_seq_len:
                     yield sequence.to(self.device)
