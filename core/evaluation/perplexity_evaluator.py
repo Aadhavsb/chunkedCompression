@@ -226,7 +226,12 @@ class PerplexityEvaluator:
                     
                     # Get attention values for this layer/head (simplified)
                     # In practice, this would integrate with your full inference pipeline
-                    batch_size, seq_length, hidden_dim = hidden_states.shape
+                    if hidden_states.dim() == 2:
+                        # Add batch dimension if needed
+                        seq_length, hidden_dim = hidden_states.shape
+                        batch_size = 1
+                    else:
+                        batch_size, seq_length, hidden_dim = hidden_states.shape
                     
                     # Simulate attention values for compression
                     simulated_values = torch.randn(
