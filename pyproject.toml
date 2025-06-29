@@ -56,6 +56,13 @@ research = [
     "pandas>=1.3.0",
 ]
 
+# Evaluation dependencies for benchmarking
+evaluation = [
+    "lm-eval[all]>=0.4.0",
+    "evaluate>=0.4.0",
+    "datasets>=2.0.0",
+]
+
 # Development dependencies
 dev = [
     "pytest>=7.0.0",
@@ -90,7 +97,7 @@ cluster = [
 
 # All optional dependencies
 all = [
-    "llama-chunked-compression[research,dev,test,docs,cluster]"
+    "llama-chunked-compression[research,dev,test,docs,cluster,evaluation]"
 ]
 
 [project.urls]
@@ -101,6 +108,7 @@ Issues = "https://https://github.com/Aadhavsb/chunkedCompression/issues"
 # CLI tools for the compression system
 llama-compress = "core.inference:main"
 llama-benchmark = "tests.integration.run_comprehensive_test:main"
+llama-evaluate = "run_evaluation_benchmark:main"
 
 # Setuptools configuration
 [tool.setuptools]
