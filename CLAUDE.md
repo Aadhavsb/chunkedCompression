@@ -188,10 +188,19 @@ safetensors>=0.3.0
 
 ## 💻 Development Commands
 
-### **🧪 Running Tests**
+### **Two Evaluation Systems**
+
+The project now has **two complementary evaluation approaches**:
+
+1. **`llama-benchmark`**: Model validation and integration testing (your existing system)
+2. **`llama-evaluate`**: Industry-standard benchmarking following Palu methodology (new)
+
+### **🧪 Model Validation Tests**
 ```bash
-# Comprehensive test suite (all components)
+# Comprehensive test suite (model validation)
 python tests/integration/run_comprehensive_test.py
+# OR
+llama-benchmark
 
 # Individual test categories
 python -m pytest tests/unit/               # Unit tests
@@ -206,6 +215,40 @@ python tests/integration/test_refactored_imports.py # Import verification
 
 # Token generation testing
 python tests/integration/test_token_generation.py
+```
+
+### **📊 Industry-Standard Evaluation**
+```bash
+# Quick evaluation (reduced samples for testing)
+python run_evaluation_benchmark.py --mode quick
+# OR
+llama-evaluate --mode quick
+
+# Full comprehensive benchmark (like Palu research)
+llama-evaluate --mode full
+
+# Perplexity evaluation with real datasets
+llama-evaluate --mode perplexity \
+    --datasets wikitext2 c4 ptb \
+    --compression baseline low med high \
+    --seq-lengths 1024 2048 4096 \
+    --max-samples 100
+
+# Zero-shot evaluation with standard tasks
+llama-evaluate --mode zero-shot \
+    --zero-shot-tasks openbookqa hellaswag piqa arc_easy arc_challenge winogrande \
+    --compression baseline med \
+    --zero-shot-limit 100
+
+# Memory-perplexity tradeoff analysis (like Palu)
+llama-evaluate --mode perplexity --compression baseline low med high \
+    --seq-lengths 1024 2048 4096 --max-samples 50
+
+# Custom evaluation configuration
+llama-evaluate --mode custom \
+    --datasets wikitext2 --compression baseline med \
+    --seq-lengths 2048 --max-samples 50 \
+    --zero-shot-tasks hellaswag piqa --zero-shot-limit 50
 ```
 
 ### **🚀 Usage Examples**
@@ -412,11 +455,39 @@ Based on git history and refactoring, recent work includes:
 
 ## 📊 Output Files
 
+### **Model Validation Results** 
 Test results are saved to `tests/results/` directory with timestamped JSON files containing:
 - Compression performance metrics
 - Memory usage statistics
 - Quality measurements (MSE, cosine similarity)
 - Cache performance data
+
+### **Industry Benchmark Results**
+Evaluation results are saved to `evaluation_results/` directory:
+- `perplexity_benchmark_YYYYMMDD_HHMMSS.json`: Perplexity analysis results
+- `zero_shot_benchmark_YYYYMMDD_HHMMSS.json`: Zero-shot task performance
+- `comprehensive_benchmark_YYYYMMDD_HHMMSS.json`: Combined evaluation results
+
+**Example benchmark result structure:**
+```json
+{
+  "benchmark_type": "perplexity",
+  "results": {
+    "wikitext2": {
+      "summary": {
+        "baseline": {"avg_perplexity": 12.1},
+        "compression_profiles": {
+          "med": {
+            "perplexity_degradation_pct": 3.3,
+            "memory_savings_pct": 78.1,
+            "avg_compression_ratio": 8.1
+          }
+        }
+      }
+    }
+  }
+}
+```
 
 ## 🚀 Development Workflow
 

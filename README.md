@@ -209,8 +209,10 @@ tests/
 ### **🏃 Running Tests**
 
 ```bash
-# Run comprehensive test suite
+# Comprehensive test suite (model validation)
 python tests/integration/run_comprehensive_test.py
+# OR
+llama-benchmark
 
 # Run specific test categories
 python -m pytest tests/unit/           # Unit tests
@@ -222,10 +224,31 @@ python tests/unit/test_kv_cache_comparison.py
 python tests/integration/test_refactored_imports.py
 ```
 
-### **📊 Test Coverage**
+### **📊 Industry-Standard Evaluation**
 
-The test suite verifies:
+```bash
+# Quick evaluation (reduced samples)
+python run_evaluation_benchmark.py --mode quick
+# OR
+llama-evaluate --mode quick
 
+# Full comprehensive benchmark (like Palu)
+llama-evaluate --mode full
+
+# Perplexity evaluation only
+llama-evaluate --mode perplexity --datasets wikitext2 c4
+
+# Zero-shot evaluation only
+llama-evaluate --mode zero-shot --zero-shot-tasks hellaswag piqa arc_easy
+
+# Memory-perplexity tradeoff analysis
+llama-evaluate --mode perplexity --compression baseline low med high \
+    --seq-lengths 1024 2048 4096 --max-samples 100
+```
+
+### **📊 Evaluation Types**
+
+#### **🧪 Model Validation Tests** (`llama-benchmark`)
 1. **✅ Model Loading**: Real LLaMA-3 8B loading and inference
 2. **✅ Compression Profiles**: SVD matrices and shape validation  
 3. **✅ Hidden States**: Real transformer output processing
@@ -233,6 +256,14 @@ The test suite verifies:
 5. **✅ End-to-End**: Complete compression pipeline
 6. **✅ Memory Management**: Resource cleanup and monitoring
 7. **✅ Configuration**: Environment-based setup validation
+
+#### **📊 Industry Benchmarks** (`llama-evaluate`)
+1. **📈 Perplexity Evaluation**: WikiText-2, C4, Penn Treebank datasets
+2. **🎯 Zero-Shot Tasks**: OpenBookQA, HellaSwag, PIQA, ARC, WinoGrande
+3. **💾 Memory-Perplexity Tradeoff**: Like Palu methodology
+4. **📏 Multi-Sequence Length**: 1024, 2048, 4096 token evaluation
+5. **🔍 Compression Analysis**: Baseline vs compression quality metrics
+6. **🚀 Standard Integration**: lm-evaluation-harness compatibility
 
 ## 📈 Compression Profiles
 
