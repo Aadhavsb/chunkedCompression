@@ -44,7 +44,7 @@ echo "✅ Container environment validated"
 # Display resource request details
 echo ""
 echo "📊 Requesting GPU resources from SLURM..."
-echo "  • GPUs: 2 (for LLaMA-3 8B model)"
+echo "  • GPUs: 1 (for LLaMA-3 8B model)"
 echo "  • CPU cores: 24"
 echo "  • Memory: 24GB"
 echo "  • Time limit: 2 hours"
@@ -61,6 +61,6 @@ echo "  4. 🚀 Begin development with full GPU access"
 echo ""
 
 # Request GPU allocation through SLURM
-echo "🎯 Executing: salloc -p gpu -c 24 --gres=gpu:2 --mem=24gb -t 2:00:00"
+echo "🎯 Executing: salloc -p gpu -c 24 --gres=gpu:1 --mem=24gb -t 2:00:00"
 echo ""
-salloc -p gpu -c 24 --gres=gpu:2 --mem=24gb -t 2:00:00
+salloc -p gpu -c 24 --gres=gpu:1 --mem=24gb -t 2:00:00
