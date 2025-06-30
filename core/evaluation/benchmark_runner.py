@@ -120,8 +120,22 @@ class BenchmarkRunner:
         # Save results
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         results_file = self.results_dir / f"perplexity_benchmark_{timestamp}.json"
+        
+        # Convert PerplexityMetrics to dict for JSON serialization
+        def convert_to_serializable(obj):
+            if hasattr(obj, '__dict__'):
+                return obj.__dict__
+            elif isinstance(obj, dict):
+                return {k: convert_to_serializable(v) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [convert_to_serializable(item) for item in obj]
+            else:
+                return obj
+        
+        serializable_results = convert_to_serializable(results)
+        
         with open(results_file, 'w') as f:
-            json.dump(results, f, indent=2)
+            json.dump(serializable_results, f, indent=2)
         
         print(f"\n✅ Perplexity benchmark complete!")
         print(f"   Total time: {results['total_time_seconds']:.1f}s")
