@@ -166,7 +166,7 @@ class LLaMAModelLoader(ModelLoaderInterface):
             print(f"   Number of layers: {self.model_config_wrapper.get_num_layers()}")
             print(f"   Architecture: {'GQA' if self.model_config_wrapper.get_num_key_value_heads() < self.model_config_wrapper.get_num_heads() else 'MHA'}")
     
-    def get_attention_weights(self, layer_idx: int) -> Dict[str, torch.Tensor]:
+    def get_attention_weights(self, layer_idx: int) -> Dict[str, Any]:
         """
         Extract attention projection matrices from specified layer.
         
@@ -217,7 +217,7 @@ class LLaMAModelLoader(ModelLoaderInterface):
             "W_O": W_O
         }
     
-    def get_language_model_head(self) -> torch.Tensor:
+    def get_language_model_head(self) -> Any:
         """Extract the language model head weight matrix."""
         if self.model is None:
             raise RuntimeError("Model not loaded. Call load_model() first.")
@@ -232,7 +232,7 @@ class LLaMAModelLoader(ModelLoaderInterface):
         print(f"🎯 Extracted language model head: {W_LM_HEAD.shape}")
         return W_LM_HEAD
     
-    def extract_hidden_states(self, input_text: str, max_length: int = 50) -> torch.Tensor:
+    def extract_hidden_states(self, input_text: str, max_length: int = 50) -> Any:
         """
         Extract hidden states from model forward pass.
         
@@ -324,7 +324,7 @@ class LLaMAModelLoader(ModelLoaderInterface):
         """Get number of layers for backward compatibility."""
         return self.get_model_config().get_num_layers()
     
-    def get_hidden_states(self, input_text: str, max_length: int = 50) -> Tuple[torch.Tensor, torch.Tensor]:
+    def get_hidden_states(self, input_text: str, max_length: int = 50) -> Tuple[Any, Any]:
         """Get hidden states for backward compatibility."""
         if self.model is None:
             raise RuntimeError("Model not loaded. Call load_model() first.")
